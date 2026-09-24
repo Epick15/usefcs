@@ -7,3 +7,5 @@ npx nodemon .\bin\www
 frontendt: 
 cd frontsefcs
 npm start
+
+123
