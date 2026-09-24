@@ -1,0 +1,150 @@
+@media only screen and (min-width: 492px) {
+    .unsm-name {
+        font-size: 0.9em;
+    }
+
+    .fcs-name {
+        font-size: 0.9em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 2.5em;
+    }
+
+    .img-fondo {
+        width: 100%;
+        z-index: 1;
+    }
+
+    .img-fondo > img {
+        width: 100%;
+        z-index: 1;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    /* nav .social-article {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    } */
+    .logo {
+        display: block;
+        height: 96px;
+        margin-top: 0;
+        width: 96px;
+    }
+
+    .unsm-name {
+        font-size: 1.4em;
+    }
+
+    .fcs-name {
+        font-size: 1.3em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 3.5em;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .logo {
+        height: 112px;
+        width: 112px;
+    }
+
+    .unsm-name {
+        font-size: 1.8em;
+    }
+
+    .fcs-name {
+        font-size: 1.6em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 4em;
+    }
+
+    .btn-menu {
+        display: none;
+    }
+
+    #menu {
+        all: unset;
+    }
+
+    .menu-lista {
+        display: flex;
+        height: 100%;
+        width: 100%;
+    }
+
+    .menu-lista li {
+        border: none;
+        margin-bottom: 0;
+    }
+
+    .menu-lista li a {
+        align-items: center;
+        background-color: transparent;
+        color: white;
+        display: flex;
+        font-weight: 400;
+        height: 100%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .menu-lista li a:hover {
+        background-color: #5f1239;
+    }
+
+    .router-link-exact-active {
+        background-color: #4f0e30 !important;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .logo {
+        display: block;
+        height: 128px;
+        margin-top: 0;
+        width: 128px;
+    }
+
+    .unsm-name {
+        font-size: 2.2em;
+    }
+
+    .fcs-name {
+        font-size: 1.9em;
+    }
+
+    .use-name > h1 {
+        font-size: 4.5em;
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    nav {
+        padding-left: 170px;
+        padding-right: 170px;
+    }
+
+    .parent-container {
+        padding-left: 170px;
+        padding-right: 170px;
+    }
+}

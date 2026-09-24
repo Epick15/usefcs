@@ -1,0 +1,50 @@
+# Dependencies installed locally
+**/node_modules/
+
+# Build artifacts and generated front-end deployments
+**/build/
+**/dist/
+**/dist-ssr/
+**/coverage/
+**/.vite/
+**/.cache/
+/intrause/intranet/
+/intrause/intranet-test/
+/siteuse/siteuse/
+
+# Runtime uploads containing user documents (kept only on the server/local disk)
+/seunsm/
+
+# Local database dump
+/backsefcs/server/controllers/general/seprofinal_db.sql
+
+# Environment-specific configuration (keep templates versioned)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Runtime, package manager, and process logs
+**/logs/
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+**/lerna-debug.log*
+
+# Locally stored backups and compressed packages
+**/*.bak
+**/*.tmp
+**/*.rar
+**/*.zip
+
+# Local editor and operating-system files
+**/.DS_Store
+**/Thumbs.db
+**/.idea/
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.swp
+**/*.tsbuildinfo

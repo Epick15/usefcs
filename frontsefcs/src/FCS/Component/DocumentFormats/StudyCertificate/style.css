@@ -1,0 +1,148 @@
+/* Oculta la vista de manera predeterminada */
+.print-page {
+    display: none;
+}
+
+@media print {
+    /* Hace que la vista se muestre */
+    .print-page {
+        display: flex;
+        flex-direction: column;
+        color: black;
+    }
+    #root {
+        display: none !important;
+    }
+    @page {
+        size: 210mm 297mm;
+        margin: 10mm;
+    }
+    html,
+    body {
+        background: none !important;
+        width: 100%;
+        height: 100%;
+    }
+    /* Dimensiona la vista */
+    .print-page {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .cert-name {
+        display: flex;
+        font-family: Times;
+        font-size: 24pt;
+        font-weight: bold;
+        justify-content: center;
+    }
+
+    .correlative {
+        margin-top: 25mm;
+        margin-bottom: 10mm;
+        font-size: 21pt;
+        font-weight: bold;
+        font-family: Times;
+        display: flex;
+        justify-content: end;
+    }
+
+    .cert-text {
+        font-size: 17pt;
+        font-family: Helvetica;
+        text-align: justify;
+        line-height: 1.1em;
+    }
+
+    .autority-container {
+        padding-top: 30mm;
+    }
+
+    .autority-name {
+        font-size: 10pt;
+        border-top: 2px solid black;
+        padding-top: 3px;
+    }
+
+    .autority-title {
+        font-weight: bold;
+        font-size: 11pt;
+        display: flex;
+        justify-content: center;
+    }
+
+    .autority-of {
+        font-size: 12pt;
+        display: flex;
+        justify-content: center;
+    }
+
+    .photo {
+        width: 40mm;
+        height: 50mm;
+        border: 2px solid black;
+    }
+
+    .table-container {
+        border: 3px solid black !important;
+    }
+
+    .table-asign th {
+        padding: 4px 10px 4px 10px !important;
+        font-size: 12pt !important;
+        font-family: Helvetica !important;
+        font-weight: bold !important;
+        color: black !important;
+    }
+
+    .table-asign .tr1 th:nth-child(1) {
+        border-right: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+    }
+    .table-asign .tr1 th:nth-child(2) {
+        width: 18mm;
+        border-right: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+    }
+    .table-asign .tr1 th:nth-child(3) {
+        border-right: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+        text-align: center;
+    }
+    .table-asign .tr1 th:nth-child(4) {
+        width: 15mm;
+        border-bottom: 2.5px solid black;
+    }
+
+    .table-asign .tr2 th:nth-child(1) {
+        width: 20mm;
+        border-right: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+    }
+    .table-asign .tr2 th:nth-child(2) {
+        width: 40mm;
+        border-right: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+    }
+
+    .table-asign td {
+        padding: 4px 10px 4px 10px !important;
+        font-size: 11pt !important;
+        font-family: Helvetica !important;
+        color: black !important;
+    }
+
+    .tr-info {
+        border-top: 2.5px solid black;
+        border-bottom: 2.5px solid black;
+    }
+
+    .tr-obs {
+        border-bottom: 2.5px solid black;
+    }
+
+    .tr-info .text-title,
+    .tr-obs .text-title {
+        font-weight: bold;
+    }
+}

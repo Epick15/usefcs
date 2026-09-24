@@ -1,0 +1,14 @@
+{
+    "name": "Segunda Especialidad - FCS",
+    "short_name": "Segunda Especialidad",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "lang": "es",
+    "scope": "/",
+    "description": "Segunda Especialidad - FCS App",
+    "theme_color": "#ffffff",
+    "icons": [
+        { "src": "./icons/android-icon-192x192.png", "sizes": "192x192", "type": "image/png" }
+    ]
+}

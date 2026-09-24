@@ -1,0 +1,9 @@
+backend: 
+cd backsefcs
+$env:NODE_ENV="dev"
+$env:PORT="8899"
+npx nodemon .\bin\www
+
+frontendt: 
+cd frontsefcs
+npm start

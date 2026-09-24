@@ -1,0 +1,282 @@
+nav {
+    background-color: #811632;
+    display: flex;
+    height: 39px;
+    position: fixed;
+    width: 100%;
+    z-index: 3;
+}
+
+nav .social-article {
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.btn-admin,
+.btn-intranet {
+    border-radius: 10px;
+    font-size: 0.7em;
+    font-weight: bold;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    text-decoration: none;
+}
+
+.btn-admin {
+    background-color: white;
+    color: black;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.btn-admin:hover {
+    background-color: #dddddd;
+    color: black;
+}
+
+.btn-intranet {
+    background-color: #fb8a05;
+    color: white;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.btn-intranet:hover {
+    background-color: #dc7907;
+    color: white;
+}
+
+main {
+    padding-top: 39px;
+    position: relative;
+}
+
+.header-section {
+    background-image: linear-gradient(to bottom, #811633e9, #811632);
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.logo {
+    height: 64px;
+    width: 64px;
+}
+
+.header-section .col-md {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.unsm-name,
+.fcs-name {
+    color: white;
+    display: flex;
+    font-size: 0.7em;
+    font-weight: bold;
+    justify-content: center;
+    text-align: center;
+}
+
+.use-name {
+    position: absolute;
+    text-align: center;
+    z-index: 2;
+}
+
+.use-name > h1 {
+    color: white;
+    font-family: BarlowBold;
+    font-size: 1.8em;
+}
+
+.img-fondo {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.img-fondo > img {
+    z-index: 1;
+}
+
+footer {
+    background-color: #eef6f5;
+    position: relative;
+}
+
+.contacto span:nth-child(1) {
+    color: #811632;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+footer section:nth-child(2) {
+    background-color: #811632;
+    color: white;
+    font-family: BarlowBold;
+    font-size: 0.9em;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+footer section:nth-child(1) .container {
+    padding-bottom: 40px;
+}
+
+.footer-title {
+    padding-bottom: 30px;
+    padding-top: 30px;
+}
+
+.footer-title span:nth-child(1) {
+    color: #811632;
+    font-size: 2.4em;
+    font-weight: bold;
+}
+
+.btn-inscription {
+    background-color: #fff01e;
+    border: 3px solid white;
+    border-radius: 22px 0 0 22px;
+    bottom: 23px;
+    cursor: pointer;
+    padding: 7px 40px 7px 20px;
+    position: fixed;
+    right: 50px;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+
+
+
+.btn-inscription i {
+    color: black;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.btn-inscription i:nth-child(1),
+.btn-inscription i:nth-child(7) {
+    animation:
+        encender 1s ease-in-out 0s infinite,
+        apagar 1s ease-in-out 1s infinite;
+}
+
+.btn-inscription i:nth-child(2),
+.btn-inscription i:nth-child(6) {
+    animation:
+        apagar 1s ease-in-out 0s infinite,
+        encender 1s ease-in-out 1s infinite;
+    animation-delay: 1s;
+}
+
+@keyframes encender {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes apagar {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.btn-menu {
+    background-color: #811632;
+    border: 3px solid white;
+    border-radius: 50%;
+    bottom: 15px;
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.5em;
+    padding: 11px 15px 11px 15px;
+    position: fixed;
+    right: 10px;
+    z-index: 3;
+}
+
+#menu {
+    align-items: end;
+    background-color: #811632;
+    bottom: 0px;
+    display: flex;
+    left: 0px;
+    padding: 10px;
+    padding-bottom: 90px;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    z-index: 3;
+}
+
+.menu-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.menu-lista li {
+    margin-bottom: 5px;
+    display: flex;
+}
+
+.menu-lista li a {
+    background-color: white;
+    color: #4f0e30;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 10px 30px 10px 30px;
+    text-decoration: none;
+    width: 100%;
+}
+
+@media only screen and (min-width: 992px) {
+    .menu-lista li a {
+        font-size: 0.8em;
+    }
+
+    .btn-inscription {
+        border-radius: 25px 0 0 25px;
+        font-size: 1.3em;
+        padding: 7px 15px 7px 15px;
+        right: 0;
+        border-right: none;
+    }
+}
+
+@font-face {
+    font-display: swap;
+    font-family: BarlowRegular;
+    src: url('fuentes/Barlow/Barlow-Regular.ttf');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: BarlowBold;
+    src: url('fuentes/Barlow/Barlow-Bold.ttf');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: BarlowCondensedBold;
+    src: url('fuentes/Barlow_Condensed/BarlowCondensed-Bold.ttf');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: OpenSans;
+    src: url('fuentes/Open_Sans/static/OpenSans-Regular.ttf');
+}

@@ -1,0 +1,351 @@
+@media only screen and (min-width: 492px) {
+    .unsm-name {
+        font-size: 0.9em;
+    }
+
+    .fcs-name {
+        font-size: 0.9em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 2.5em;
+    }
+
+    .img-fondo {
+        width: 100%;
+        z-index: 1;
+    }
+
+    .img-fondo > img {
+        width: 100%;
+        z-index: 1;
+    }
+
+    /* SECTION STYLES - GENERAL*/
+    .section-title {
+        padding-bottom: 30px;
+    }
+
+    .section-title span:nth-child(1) {
+        font-size: 1.5em;
+    }
+
+    .section-title span:nth-child(3) {
+        font-size: 1em;
+    }
+
+    /* ADMISION SECTION STYLES */
+    .admision-section {
+        padding-bottom: 30px;
+        padding-top: 30px;
+    }
+
+    .admision-title {
+        font-size: 3.5em;
+    }
+
+    .admision-subtitle {
+        font-size: 1.3em;
+    }
+
+    .resultados-title span,
+    .resultados-title i {
+        font-size: 1.6em;
+        cursor: pointer;
+    }
+
+    .admision-registration {
+        margin-bottom: 35px;
+        margin-top: 30px;
+    }
+
+    .admision-registration a {
+        font-size: 1.2em;
+        padding: 10px 15px 10px 15px;
+    }
+
+    .requirements div:nth-child(1) {
+        font-size: 1.4em;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    .requirements .requirements-list {
+        font-size: 1.2em;
+        list-style-type: circle;
+    }
+
+    .requirements-list li {
+        margin-bottom: 10px;
+    }
+
+    .more-info {
+        font-size: 1.7em;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        color: #4f0e30;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .logo {
+        display: block;
+        height: 96px;
+        margin-top: 0;
+        width: 96px;
+    }
+
+    .unsm-name {
+        font-size: 1.4em;
+    }
+
+    .fcs-name {
+        font-size: 1.3em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 3.5em;
+    }
+
+    /* SECTION STYLES - GENERAL*/
+    .section-title {
+        padding-bottom: 30px;
+    }
+
+    .section-title span:nth-child(1) {
+        font-size: 1.5em;
+    }
+
+    .section-title span:nth-child(3) {
+        font-size: 1em;
+    }
+
+    /* ADMISION SECTION STYLES */
+    .admision-section {
+        padding-bottom: 30px;
+        padding-top: 30px;
+    }
+
+    .admision-title {
+        font-size: 3.5em;
+    }
+
+    .admision-subtitle {
+        font-size: 1.3em;
+    }
+
+    .admision-registration {
+        margin-bottom: 35px;
+        margin-top: 30px;
+    }
+
+    .admision-registration a {
+        font-size: 1.2em;
+        padding: 10px 15px 10px 15px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .logo {
+        height: 112px;
+        width: 112px;
+    }
+
+    .unsm-name {
+        font-size: 1.8em;
+    }
+
+    .fcs-name {
+        font-size: 1.6em;
+    }
+
+    .use-name {
+        width: 70%;
+    }
+
+    .use-name > h1 {
+        font-size: 4em;
+    }
+
+    /* SECTION STYLES - GENERAL*/
+    .section-title {
+        padding-bottom: 30px;
+    }
+
+    .section-title span:nth-child(1) {
+        font-size: 1.5em;
+    }
+
+    .section-title span:nth-child(3) {
+        font-size: 1em;
+    }
+
+    /* ADMISION SECTION STYLES */
+    .admision-section {
+        padding-bottom: 30px;
+        padding-top: 30px;
+    }
+
+    .admision-title {
+        font-size: 3.5em;
+    }
+
+    .admision-subtitle {
+        font-size: 1.3em;
+    }
+
+    .admision-registration {
+        margin-bottom: 35px;
+        margin-top: 30px;
+    }
+
+    .admision-registration a {
+        font-size: 1.2em;
+        padding: 10px 15px 10px 15px;
+    }
+
+    .menu-button {
+        display: none;
+    }
+
+    #menu {
+        all: unset;
+    }
+
+    .menu-lista {
+        display: flex;
+        height: 100%;
+        width: 100%;
+    }
+
+    .menu-lista li {
+        border: none;
+    }
+
+    .menu-lista li a {
+        align-items: center;
+        background-color: transparent;
+        color: white;
+        display: flex;
+        font-weight: 400;
+        /* height: 100%; */
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .menu-lista li a:hover {
+        background-color: #5f1239;
+    }
+
+    .router-link-exact-active {
+        background-color: #4f0e30 !important;
+    }
+
+    .admision-horario th {
+        border: 2px solid black !important;
+        color: white;
+        font-family: BarlowBold;
+        font-size: 1.1em;
+        text-align: center;
+    }
+    
+    .admision-horario td {
+        border: 2px solid black !important;
+        font-family: BarlowRegular;
+        font-size: 1.1em;
+        text-align: center;
+        text-wrap: balance;
+        vertical-align: middle;
+    }
+
+    .card {
+        font-size: 1.5em;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    /* HEADER SECTION STYLES */
+    .logo {
+        display: block;
+        height: 128px;
+        margin-top: 0;
+        width: 128px;
+    }
+
+    .unsm-name {
+        font-size: 2.2em;
+    }
+
+    .fcs-name {
+        font-size: 1.9em;
+    }
+
+    .use-name > h1 {
+        font-size: 4.5em;
+    }
+
+    /* SECTION STYLES - GENERAL*/
+    .section-title {
+        padding-bottom: 30px;
+    }
+
+    .section-title span:nth-child(1) {
+        font-size: 2.4em;
+    }
+
+    .section-title span:nth-child(3) {
+        font-size: 1.5em;
+    }
+
+    /* ADMISION SECTION STYLES */
+    .admision-section {
+        padding-bottom: 30px;
+        padding-top: 30px;
+    }
+
+    .admision-title {
+        font-size: 5em;
+    }
+
+    .admision-subtitle {
+        font-size: 1.8em;
+    }
+
+    .admision-registration {
+        margin-bottom: 35px !important;
+        margin-top: 30px !important;
+    }
+
+    .admision-registration a {
+        font-size: 1.2em;
+        padding: 10px 15px 10px 15px;
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    /* NAV STYLES */
+    nav {
+        padding-left: 170px;
+        padding-right: 170px;
+    }
+
+    .parent-container {
+        padding-left: 170px;
+        padding-right: 170px;
+    }
+
+    .aro-plan-title,
+    .eco-plan-title,
+    .cacu-plan-title {
+        font-size: 1.7em;
+    }
+}
