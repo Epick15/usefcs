@@ -92,7 +92,7 @@ module.exports = {
                     where: {
                         id_academic_calendar: req.params.id
                     },
-                    attributes: ['id', 'id_student', 'type', 'correlative', 'document_code', 'observation', 'created_at', 'file', 'state_upload'],
+                    attributes: ['id', 'id_payment', 'id_student', 'type', 'correlative', 'document_code', 'observation', 'academic_record_emission_date', 'academic_record_emission_reason', 'created_at', 'file', 'state_upload'],
                     include: [
                         {
                             attributes: ['denomination', 'description'],
@@ -101,6 +101,10 @@ module.exports = {
                         {
                             attributes: ['id', 'denomination'],
                             model: Concept, as: "Concept",
+                        },
+                        {
+                            attributes: ['academic_record_emission_date', 'academic_record_emission_reason'],
+                            model: Payment, as: "Payment",
                         },
                         {
 
@@ -249,6 +253,31 @@ module.exports = {
             // Rollback transaction if any errors were encountered
             console.log(err)
             res.status(445).send(err)
+        }
+    },
+    updateAcademicRecordEmissionDate: async (req, res) => {
+        try {
+            const emissionDate = req.body.academic_record_emission_date;
+            const emissionReason = (req.body.academic_record_emission_reason || '').trim();
+
+            if (!emissionDate || !emissionReason) {
+                throw {message: 'La fecha de emisión y el motivo son obligatorios'};
+            }
+
+            await ST.transaction(async (t) => {
+                const documentBook = await Model.findByPk(req.params.id, {transaction: t});
+                if (!documentBook) throw {message: 'No se encontró el documento'};
+
+                await documentBook.update({
+                    academic_record_emission_date: emissionDate,
+                    academic_record_emission_reason: emissionReason,
+                }, {transaction: t});
+            });
+
+            res.status(200).send({message: message.UPDATED_OK});
+        } catch (err) {
+            console.log(err);
+            res.status(445).send(err);
         }
     }
 

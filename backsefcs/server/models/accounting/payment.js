@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         payment_date: {allowNull: true, type: DataTypes.STRING(50)},
         amount: {allowNull: false, type: DataTypes.NUMERIC(20, 2)},
         denomination: {allowNull: true, type: DataTypes.STRING(255)},
+        academic_record_emission_date: {allowNull: true, type: DataTypes.DATEONLY},
+        academic_record_emission_reason: {allowNull: true, type: DataTypes.TEXT},
         order_number: {allowNull: true, type: DataTypes.SMALLINT},
         type: {
             allowNull: false,

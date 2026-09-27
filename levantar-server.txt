@@ -8,4 +8,19 @@ frontendt:
 cd frontsefcs
 npm start
 
-123
+MIGRACIONES EN PRODUCCIÓN (Ubuntu):
+cd /srv/backsefcs
+export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"
+SEQUELIZE=$(find . -type f -path '*/sequelize-cli/lib/sequelize' -print -quit)
+
+# Migraciones de Contabilidad
+node "$SEQUELIZE" --options-path ./.sequelizerc-accounting --env pro db:migrate
+
+# Migraciones de Programas
+node "$SEQUELIZE" --options-path ./.sequelizerc-programs --env pro db:migrate
+
+REINICIO BACKEND EN PRODUCCIÓN (PM2):
+# Aplicar después de subir el backend y ejecutar las migraciones.
+su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 restart se-back --update-env'
+su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 save'
+su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 list'

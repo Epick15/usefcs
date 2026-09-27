@@ -369,7 +369,7 @@ general.get('/report-constancy-adeudar/:id_student/:id_document_book', verifyTok
 general.get('/report-constancy-order-merito/:id_student/:id_document_book', ReportController.reportConstancyOrdenMerito);
 general.get('/report-constancy-disciplinary/:id_student/:id_document_book', verifyToken, ReportController.reportConstancyDisciplinary);
 general.get('/report-constancy-registration/:id_student/:id_document_book', verifyToken, ReportController.reportConstancyRegistration);
-general.get('/report-academic-record/:id_student', verifyToken, ReportController.reportAcademicRecord);
+general.get('/report-academic-record/:id_student/:id_document_book?', verifyToken, ReportController.reportAcademicRecord);
 general.get('/report-academic-ficha/:id_registration/:id_student', verifyToken, ReportController.reportAcademicFicha);
 general.get('/report-acta/:id_acta_book', verifyToken, ReportController.reportActa);
 general.get('/report-study-plan/:id_plan', verifyToken,ReportController.reportStudyPlan);

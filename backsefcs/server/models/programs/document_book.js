@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         file: {allowNull: true, type: DataTypes.STRING},
         type: {allowNull: true, type: DataTypes.STRING},
         observation: {allowNull: true, type: DataTypes.STRING},
+        academic_record_emission_date: {allowNull: true, type: DataTypes.DATEONLY},
+        academic_record_emission_reason: {allowNull: true, type: DataTypes.TEXT},
         state: {allowNull: false, type: DataTypes.BOOLEAN, defaultValue: true},
         state_upload: {allowNull: false, type: DataTypes.BOOLEAN, defaultValue: false},
     }, {
@@ -49,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             as: 'Program',
 
+        });
+        Document_book.belongsTo(models.Payment, {
+            foreignKey: 'id_payment',
+            targetKey: 'id',
+            as: 'Payment',
         });
     };
 
