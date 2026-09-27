@@ -177,6 +177,7 @@ const MasterTypeEdificationModules = React.lazy(() =>
 const ReportWebInscriptionModules = React.lazy(() =>
     import("./FCS/Modules/ReportWebInscription")
 );
+const WebContentModules = React.lazy(() => import("./FCS/Modules/WebContent"));
 
 const god = [
     { path: "/", exact: true, name: "Dashboard", component: Dashboard },
@@ -535,6 +536,12 @@ const god = [
         name: "web-inscription",
         component: ReportWebInscriptionModules,
     },
+    {
+        path: "/web-content",
+        exact: true,
+        name: "web-content",
+        component: WebContentModules,
+    },
 
     // ***************************************************************************************************************
 ];
@@ -711,6 +718,12 @@ const administrador = [
         exact: true,
         name: "web-inscription",
         component: ReportWebInscriptionModules,
+    },
+    {
+        path: "/web-content",
+        exact: true,
+        name: "web-content",
+        component: WebContentModules,
     },
 ];
 const contabilidad = [

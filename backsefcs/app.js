@@ -88,6 +88,7 @@ app.use(
 app.use("/api/docs", express.static(publicFolder + "/person/docs/"));
 app.use("/api/docs-program", express.static(publicFolder + "/program/"));
 app.use("/api/docs-student", express.static(publicFolder + "/person/student/"));
+app.use("/api/web/authorities", express.static(publicFolder + "/web/authorities/"));
 
 app.use("/api/voucher/:img", verifyToken, async (req, res) => {
   res.sendFile(publicFolder + "/person/voucher/" + req.params.img);

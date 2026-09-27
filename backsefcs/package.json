@@ -25,6 +25,7 @@
     "dev:seq:person:m": "sequelize --options-path ./.sequelizerc-person --env dev db:migrate",
     "dev:seq:person:s:a": "sequelize --options-path ./.sequelizerc-person --env dev db:seed:all",
     "dev:seq:accounting:m": "sequelize --options-path ./.sequelizerc-accounting --env dev db:migrate",
+    "dev:seq:web:m": "sequelize --options-path ./.sequelizerc-web --env dev db:migrate",
     "dev:seq:accounting:s:a": "sequelize --options-path ./.sequelizerc-accounting --env dev db:seed:all",
     "dev:seq:registration:m": "sequelize --options-path ./.sequelizerc-registration --env dev db:migrate",
     "dev:seq:registration:s:a": "sequelize --options-path ./.sequelizerc-registration --env dev db:seed:all",
@@ -53,6 +54,7 @@
     "pro:seq:person:m": "sequelize --options-path ./.sequelizerc-person --env pro db:migrate",
     "pro:seq:person:s:a": "sequelize --options-path ./.sequelizerc-person --env pro db:seed:all",
     "pro:seq:accounting:m": "sequelize --options-path ./.sequelizerc-accounting --env pro db:migrate",
+    "pro:seq:web:m": "sequelize --options-path ./.sequelizerc-web --env pro db:migrate",
     "pro:seq:accounting:s:a": "sequelize --options-path ./.sequelizerc-accounting --env pro db:seed:all",
     "pro:seq:registration:m": "sequelize --options-path ./.sequelizerc-registration --env pro db:migrate",
     "pro:seq:registration:s:a": "sequelize --options-path ./.sequelizerc-registration --env pro db:seed:all"
