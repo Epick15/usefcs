@@ -8,4 +8,6 @@ frontendt:
 cd frontsefcs
 npm start
 
-123
+$node16 = 'C:\Users\ermad\AppData\Local\Author Software\nvm\installs\v16.20.2'
+$env:Path = "$node16;$env:Path"
+npm start

@@ -22,7 +22,6 @@ const intranet = require("./server/routes/intranet");
 const web = require("./server/routes/web");
 // end web
 const env = process.env.NODE_ENV;
-const config = require("./config");
 app.use(
   helmet({
     frameguard: {
@@ -31,38 +30,46 @@ app.use(
   })
 );
 
-let publicFolder = "";
-let urlServerPlublic = "";
+// Keep a fresh local checkout self-contained. Production deployments can set
+// PUBLIC_DIR to their shared storage path.
+const publicFolder = process.env.PUBLIC_DIR || path.join(__dirname, "public");
+const urlServerPlublic = publicFolder;
 let optionMorgan = "";
 let urlAccessLogStream = "";
 
 if (env === "dev") {
-  publicFolder = path.join(__dirname, "..", "seunsm", "public");
-  urlServerPlublic = publicFolder;
-
   urlAccessLogStream = "./server/logs/accessDev.log";
   optionMorgan = json(
     ":remote-addr :date[iso] :method :url :status :response-time ms :id :params :body"
   );
 }
 if (env === "test") {
-  urlServerPlublic = publicFolder;
   urlAccessLogStream = `${appRoot}/server/logs/accessTest.log`;
   optionMorgan = json(
     ":remote-addr - :date :method :url :http-version :status  :id :params :body "
   );
 }
 if (env === "pro") {
-  if (config.SYSTEM === "SEFCSUNSM") {
-    publicFolder = path.join(__dirname, "..", "seunsm/public");
-  }
-  // AÑADIR "ELSE" PARA OTROS SISTEMAS
-  urlServerPlublic = publicFolder;
   urlAccessLogStream = `${appRoot}/server/logs/accessPro.log`;
   optionMorgan = json(
     ":remote-addr - :date :method :url :http-version :status  :id :params :body"
   );
 }
+
+// Required at a fresh checkout: the logging and upload libraries do not make
+// missing directories themselves.
+[
+  publicFolder,
+  path.join(publicFolder, "person", "photography"),
+  path.join(publicFolder, "person", "docs"),
+  path.join(publicFolder, "person", "student"),
+  path.join(publicFolder, "person", "studentDocument"),
+  path.join(publicFolder, "person", "voucher"),
+  path.join(publicFolder, "postulantVoucher"),
+  path.join(publicFolder, "program"),
+  path.join(publicFolder, "project"),
+  path.dirname(urlAccessLogStream),
+].forEach((directory) => fs.mkdirSync(directory, { recursive: true }));
 
 //*************************************************//
 
