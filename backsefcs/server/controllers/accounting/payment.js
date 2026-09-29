@@ -16,6 +16,21 @@ const k = new Buffer.alloc(32);
 const v = new Buffer.alloc(16);
 
 const ST = Model.sequelize;
+const academicRecordFilter = {
+    [Op.iLike]: '%Record Académico%'
+};
+
+const findAcademicRecordPayment = (idStudent, transaction) => Model.findOne({
+    where: {id_student: idStudent},
+    include: [{
+        model: Concept,
+        as: 'Concept',
+        required: true,
+        where: {denomination: academicRecordFilter}
+    }],
+    order: [['created_at', 'DESC']],
+    transaction
+});
 
 module.exports = {
     listPaymentStudent: async (req, res) => {
@@ -244,6 +259,53 @@ module.exports = {
             res.status(445).send(err)
         }
 
+    },
+    getAcademicRecordEmissionDate: async (req, res) => {
+        try {
+            const payment = await findAcademicRecordPayment(req.params.id_student);
+            if (!payment) throw {message: 'No se encontró la operación de Récord Académico'};
+
+            res.status(200).send({
+                id_payment: payment.id,
+                academic_record_emission_date: payment.academic_record_emission_date,
+                academic_record_emission_reason: payment.academic_record_emission_reason,
+            });
+        } catch (err) {
+            console.log(err);
+            res.status(445).send(err);
+        }
+    },
+    updateAcademicRecordEmissionDate: async (req, res) => {
+        try {
+            const emissionDate = req.body.academic_record_emission_date;
+            const emissionReason = (req.body.academic_record_emission_reason || '').trim();
+
+            if (!emissionDate || !emissionReason) {
+                throw {message: 'La fecha de emisión y el motivo son obligatorios'};
+            }
+
+            await ST.transaction(async (t) => {
+                const selectedPayment = await Model.findByPk(req.params.id_payment, {transaction: t});
+                if (!selectedPayment) throw {message: 'No se encontró la operación'};
+                const payment = await findAcademicRecordPayment(
+                    selectedPayment.id_student,
+                    t
+                );
+                if (!payment) {
+                    throw {message: 'No se encontró la operación de Récord Académico'};
+                }
+
+                await payment.update({
+                    academic_record_emission_date: emissionDate,
+                    academic_record_emission_reason: emissionReason,
+                }, {transaction: t});
+            });
+
+            res.status(200).send({message: message.UPDATED_OK});
+        } catch (err) {
+            console.log(err);
+            res.status(445).send(err);
+        }
     },
     destroyPayment: async (req, res) => {
         try {

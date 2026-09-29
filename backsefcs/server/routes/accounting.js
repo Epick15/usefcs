@@ -15,8 +15,10 @@ accounting.get('/payment-operation/:id', verifyToken, UserIntranetController.lis
 accounting.get('/payment/student/:id', verifyToken, PaymentController.listPaymentStudent);
 accounting.get('/payment/student/:id/operation', verifyToken, PaymentController.listPaymentStudentOperation);
 accounting.get('/payment/student/:id/retirement', verifyToken, PaymentController.listPaymentRetirementByStudent);
+accounting.get('/payment/student/:id_student/academic-record-emission', verifyToken, PaymentController.getAcademicRecordEmissionDate);
 accounting.post('/payment', verifyToken, PaymentController.createPayment);
 accounting.patch('/payment-update/:id_payment', verifyToken, PaymentController.updatePayment);
+accounting.patch('/payment/:id_payment/academic-record-emission', verifyToken, PaymentController.updateAcademicRecordEmissionDate);
 
 accounting.patch('/payment/state', verifyToken, PaymentController.updateStatePayment);
 accounting.patch('/payment/total-balance', verifyToken, PaymentController.listTotalBalance);

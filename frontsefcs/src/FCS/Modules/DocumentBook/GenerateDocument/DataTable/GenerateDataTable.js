@@ -21,6 +21,7 @@ import GetApp from "@material-ui/icons/GetApp";
 import Backup from "@material-ui/icons/Backup";
 import CloudDone from "@material-ui/icons/CloudDone";
 import Edit from "@material-ui/icons/Edit";
+import Event from "@material-ui/icons/Event";
 import Refresh from "@material-ui/icons/Refresh";
 import moment from "moment";
 import Attachment from "@material-ui/icons/Attachment";
@@ -33,6 +34,7 @@ class Index extends Component {
     state = {
         modal: false,
         modalDocument: false,
+        modalAcademicRecordEmission: false,
         loaderDocumentBook: false,
         process: "",
         correlative: "",
@@ -46,6 +48,10 @@ class Index extends Component {
         studentID: "",
         file: "",
         stateUpload: false,
+        paymentID: "",
+        recordPaymentID: "",
+        academicRecordEmissionDate: "",
+        academicRecordEmissionReason: "",
     };
 
     componentDidMount() {
@@ -528,9 +534,14 @@ class Index extends Component {
         }
     }
 
-    async reportAcademicRecord(id_student) {
+    async reportAcademicRecord(id_student, id_document_book) {
         this.setState({ registrationDataLoader: true });
-        const url = app.general + "/report-academic-record/" + id_student;
+        const url =
+            app.general +
+            "/report-academic-record/" +
+            id_student +
+            "/" +
+            id_document_book;
         try {
             const res = await axios.get(url, app.headers);
             if (res.data) component.pdfReportAutoTableRercordAcademic(res.data);
@@ -563,10 +574,101 @@ class Index extends Component {
             observation: "",
         });
     };
+    openAcademicRecordEmission = async (data) => {
+        this.setState({
+            modalAcademicRecordEmission: true,
+            documentBookID: data.id,
+            paymentID: data.id_payment,
+            loaderDocumentBook: true,
+        });
+        try {
+            const url =
+                app.accounting +
+                "/" +
+                app.payment +
+                "/student/" +
+                data.id_student +
+                "/academic-record-emission";
+            const res = await axios.get(url, app.headers);
+            this.setState({
+                loaderDocumentBook: false,
+                recordPaymentID: res.data.id_payment,
+                academicRecordEmissionDate: res.data.academic_record_emission_date
+                    ? moment(res.data.academic_record_emission_date).format("YYYY-MM-DD")
+                    : "",
+                academicRecordEmissionReason:
+                    res.data.academic_record_emission_reason || "",
+            });
+        } catch (err) {
+            this.setState({loaderDocumentBook: false});
+            PNotify.error({
+                title: "Oh no!",
+                text: err.response && err.response.data.message,
+                delay: 2000,
+            });
+        }
+    };
+    closeAcademicRecordEmission = () => {
+        this.setState({
+            modalAcademicRecordEmission: false,
+            documentBookID: "",
+            paymentID: "",
+            recordPaymentID: "",
+            academicRecordEmissionDate: "",
+            academicRecordEmissionReason: "",
+        });
+    };
+    async updateAcademicRecordEmission() {
+        const {
+            recordPaymentID,
+            academicRecordEmissionDate,
+            academicRecordEmissionReason,
+        } = this.state;
+
+        if (!academicRecordEmissionDate || !academicRecordEmissionReason.trim()) {
+            PNotify.notice({
+                title: "Advertencia!",
+                text: "Complete la fecha de emisión y el motivo",
+                delay: 2000,
+            });
+            return;
+        }
+
+        this.setState({loaderDocumentBook: true});
+        const url =
+            app.accounting +
+            "/" +
+            app.payment +
+            "/" +
+            recordPaymentID +
+            "/academic-record-emission";
+        const data = new FormData();
+        data.set("academic_record_emission_date", academicRecordEmissionDate);
+        data.set("academic_record_emission_reason", academicRecordEmissionReason.trim());
+
+        try {
+            const res = await axios.patch(url, data, app.headers);
+            this.setState({loaderDocumentBook: false});
+            this.listDocumentBook(this.state.process);
+            this.closeAcademicRecordEmission();
+            PNotify.success({
+                title: "Finalizado",
+                text: res.data.message,
+                delay: 2000,
+            });
+        } catch (err) {
+            this.setState({loaderDocumentBook: false});
+            PNotify.error({
+                title: "Oh no!",
+                text: err.response && err.response.data.message,
+                delay: 2000,
+            });
+        }
+    }
     downloadPdf = (field, id_student, id_document_book) => {
         switch (field) {
             case "record":
-                this.reportAcademicRecord(id_student);
+                this.reportAcademicRecord(id_student, id_document_book);
                 break;
             case "certificado":
                 this.reportCertyStudy(id_student, id_document_book);
@@ -635,6 +737,12 @@ class Index extends Component {
                 this.listDocumentBook(event.target.value);
                 this.setState({ process: event.target.value });
 
+                break;
+            case "academicRecordEmissionDate":
+                this.setState({academicRecordEmissionDate: event.target.value});
+                break;
+            case "academicRecordEmissionReason":
+                this.setState({academicRecordEmissionReason: event.target.value});
                 break;
 
             default:
@@ -823,6 +931,20 @@ class Index extends Component {
                                     </OverlayTrigger>
                                     <OverlayTrigger
                                         overlay={
+                                            <Tooltip>
+                                                FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
+                                            </Tooltip>
+                                        }
+                                    >
+                                        <Event
+                                            style={{color: "#6f42c1"}}
+                                            onClick={() =>
+                                                this.openAcademicRecordEmission(value)
+                                            }
+                                        />
+                                    </OverlayTrigger>
+                                    <OverlayTrigger
+                                        overlay={
                                             <Tooltip>DESCARGAR RECORD</Tooltip>
                                         }
                                     >
@@ -831,7 +953,8 @@ class Index extends Component {
                                             onClick={() =>
                                                 this.downloadPdf(
                                                     "record",
-                                                    value.id_student
+                                                    value.id_student,
+                                                    value.id
                                                 )
                                             }
                                         />
@@ -1442,6 +1565,83 @@ class Index extends Component {
                                     onClick={() => this.updateDocumentBook()}
                                 >
                                     Guardar Cambios
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Modal.Body>
+                </Modal>
+                <Modal
+                    show={this.state.modalAcademicRecordEmission}
+                    backdrop="static"
+                >
+                    <Modal.Header className="bg-primary">
+                        <Modal.Title as="h5" style={{color: "#ffffff"}}>
+                            FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
+                        </Modal.Title>
+                        <div className="d-inline-block pull-right">
+                            <OverlayTrigger
+                                overlay={
+                                    <Tooltip style={{zIndex: 100000000}}>
+                                        Cerrar
+                                    </Tooltip>
+                                }
+                            >
+                                <Close
+                                    style={{color: "white"}}
+                                    onClick={() =>
+                                        this.closeAcademicRecordEmission()
+                                    }
+                                />
+                            </OverlayTrigger>
+                        </div>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Row>
+                            <Col xs={12}>
+                                <Form.Group className="form-group fill">
+                                    <Form.Label className="floating-label">
+                                        Fecha de emisión
+                                        <small className="text-danger"> *</small>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={this.state.academicRecordEmissionDate}
+                                        onChange={this.handleChange(
+                                            "academicRecordEmissionDate"
+                                        )}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col xs={12}>
+                                <Form.Group className="form-group fill">
+                                    <Form.Label className="floating-label">
+                                        Motivo del cambio
+                                        <small className="text-danger"> *</small>
+                                    </Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows="3"
+                                        value={
+                                            this.state
+                                                .academicRecordEmissionReason
+                                        }
+                                        onChange={this.handleChange(
+                                            "academicRecordEmissionReason"
+                                        )}
+                                        placeholder="Indique el motivo de la fecha manual"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col xs={12}>
+                                <Button
+                                    className="pull-right"
+                                    disabled={this.state.loaderDocumentBook}
+                                    variant="primary"
+                                    onClick={() =>
+                                        this.updateAcademicRecordEmission()
+                                    }
+                                >
+                                    Guardar fecha
                                 </Button>
                             </Col>
                         </Row>

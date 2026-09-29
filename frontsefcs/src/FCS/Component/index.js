@@ -4414,6 +4414,7 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
             data.studentData.Program.Organic_unit_register.denomination.toUpperCase(),
         // MPT
         admissionPlan = data.studentData.Admission_plan.description,
+        emissionDate = data.emissionDate,
         authority = data.authorityTypeUse || {
             person: "",
             charge: "Director de la Unidad de Segunda Especialidad",
@@ -4500,6 +4501,14 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
         pdf.text(":", 78, 71);
         pdf.setFont("helvetica", "normal");
         pdf.text(admissionPlan, 81, 71);
+
+        if (emissionDate) {
+            pdf.setFont("helvetica", "bold");
+            pdf.text("FECHA DE EMISIÓN", 10, 76);
+            pdf.text(":", 45, 76);
+            pdf.setFont("helvetica", "normal");
+            pdf.text(moment(emissionDate).format("DD/MM/YYYY"), 48, 76);
+        }
     };
 
     const addContent = (part, initialTableY) => {
@@ -4508,27 +4517,28 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
             reg.Registration_course.forEach((regCourse) => {
                 let typeCourse =
                     regCourse.type_course === "Obligatorio" ? "O" : "E";
-                // totalCourse = totalCourse + 1;
-                // totalCredit = totalCredit + regCourse.credits;
+                const note = Number(regCourse.note);
+                const credits = Number(regCourse.credits);
+                const hasNote =
+                    regCourse.note !== null &&
+                    regCourse.note !== "" &&
+                    Number.isFinite(note);
+                const hasCredits = Number.isFinite(credits);
 
-                if (regCourse.actaExists) {
+                // El resumen debe usar las notas que se muestran en el récord.
+                // Antes dependía de actaExists, por lo que podía dividir entre
+                // cero aun cuando el documento mostraba cursos calificados.
+                if (hasNote) {
                     totalCourse += 1;
-                    totalCredit += regCourse.credits;
-                    generalPromedi += regCourse.note;
-                }
+                    generalPromedi += note;
+                    if (hasCredits) totalCredit += credits;
 
-                totalAprovedCourse =
-                    regCourse.note >= 14
-                        ? totalAprovedCourse + 1
-                        : totalAprovedCourse;
-                aprovedPromedi =
-                    regCourse.note >= 14
-                        ? aprovedPromedi + regCourse.note
-                        : aprovedPromedi;
-                totalAprovedCredit =
-                    regCourse.note >= 14
-                        ? totalAprovedCredit + regCourse.credits
-                        : totalAprovedCredit;
+                    if (note >= 14) {
+                        totalAprovedCourse += 1;
+                        aprovedPromedi += note;
+                        if (hasCredits) totalAprovedCredit += credits;
+                    }
+                }
                 let noteText = numberToLetter(parseInt(regCourse.note));
                 tempBody.push([
                     regCourse.code,
@@ -4616,7 +4626,11 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
         pdf.text("PROMEDIO GENERAL", 10, 230);
         pdf.text(":", 50, 230);
         pdf.text(
-            String(Math.round((generalPromedi / totalCourse) * 100) / 100),
+            String(
+                totalCourse !== 0
+                    ? Math.round((generalPromedi / totalCourse) * 100) / 100
+                    : 0
+            ),
             52,
             230
         );
@@ -4678,7 +4692,7 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
             pdf.addPage();
         }
         addHeader();
-        addContent(arrayParts[index], 82);
+        addContent(arrayParts[index], 88);
         addFooter();
 
         pdf.setFont("helvetica", "normal");

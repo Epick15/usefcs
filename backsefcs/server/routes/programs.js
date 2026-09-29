@@ -38,6 +38,7 @@ programs.get('/acta-book/:id_process', verifyToken, ActaBookController.listActaB
 programs.get('/document-book-payment', verifyToken, DocumentBookController.listDocumentPayment);
 programs.get('/document-book/:id', DocumentBookController.listDocumentBook);
 programs.patch('/document-book/upload/:id', DocumentBookController.uploadDocumentBook);
+programs.patch('/document-book/:id/academic-record-emission', verifyToken, DocumentBookController.updateAcademicRecordEmissionDate);
 programs.post('/document-book', verifyToken, DocumentBookController.createDocumentBook);
 programs.patch('/document-book/:id', verifyToken, DocumentBookController.updateDocumentBook);
 

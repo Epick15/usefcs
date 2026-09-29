@@ -7,6 +7,8 @@ import ModalInscription from '@/components/ModalInscription.vue'
 const showModal = ref(false)
 const counter = ref(0)
 const today = new Date()
+const api = import.meta.env.VITE_API_URL || 'http://localhost:8899/api'
+const registrationUrl = ref('https://forms.gle/nmCRL66m2EfQrPY8A')
 
 const year = computed(() => today.getFullYear())
 
@@ -30,6 +32,15 @@ const onResize = () => {
   }
 }
 onResize()
+
+onMounted(async () => {
+  try {
+    const response = await fetch(`${api}/web/admission`)
+    if (!response.ok) return
+    const data = await response.json()
+    if (data.admission?.registration_url) registrationUrl.value = data.admission.registration_url
+  } catch (_) {}
+})
 </script>
 
 <template>
@@ -152,7 +163,7 @@ onResize()
   </footer>
 
   <a
-    href="https://forms.gle/nmCRL66m2EfQrPY8A"
+    :href="registrationUrl"
     class="btn-inscription"
     target="_blank"
   >

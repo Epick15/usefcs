@@ -2980,6 +2980,64 @@ module.exports = {
                 where: { state: true },
             });
             const authorityTypeUse = await findSecondSpecialtyAuthority();
+            let emissionDate = null;
+
+            // El libro de documentos se origina a partir de un pago. Para el
+            // récord emitido desde esa pantalla, la fecha de emisión debe ser
+            // la fecha de registro de esa operación, no la fecha de descarga.
+            if (req.query.id_payment) {
+                const payment = await Payment.findOne({
+                    attributes: ["created_at", "academic_record_emission_date"],
+                    where: {id_student: req.params.id_student},
+                    include: [{
+                        model: Concept,
+                        as: "Concept",
+                        required: true,
+                        where: {denomination: {[Op.iLike]: "%Record Académico%"}},
+                    }],
+                    order: [["created_at", "DESC"]],
+                });
+
+                if (!payment) {
+                    throw {message: "No se encontró la operación solicitada"};
+                }
+
+                emissionDate =
+                    payment.academic_record_emission_date || payment.created_at;
+            } else if (req.params.id_document_book) {
+                const documentBook = await Document_book.findOne({
+                    attributes: ["id_payment", "academic_record_emission_date"],
+                    where: {
+                        id: req.params.id_document_book,
+                        id_student: req.params.id_student,
+                    },
+                });
+
+                if (!documentBook) {
+                    throw {message: "No se encontró el documento solicitado"};
+                }
+
+                const payment = await Payment.findOne({
+                    attributes: ["created_at", "academic_record_emission_date"],
+                    where: {id_student: req.params.id_student},
+                    include: [{
+                        model: Concept,
+                        as: "Concept",
+                        required: true,
+                        where: {denomination: {[Op.iLike]: "%Record Académico%"}},
+                    }],
+                    order: [["created_at", "DESC"]],
+                });
+
+                if (!payment) {
+                    throw {message: "No se encontró la operación del documento solicitado"};
+                }
+
+                // La fecha manual vive en la operación para que Pendientes y
+                // Generados utilicen exactamente el mismo valor.
+                emissionDate =
+                    payment.academic_record_emission_date || payment.created_at;
+            }
 
             const studentData = await Student.findOne({
                 attributes: ["id", "id_plan", "id_program", "type"],
@@ -3192,6 +3250,7 @@ module.exports = {
                 authorityTypeUse,
                 studentData,
                 registration,
+                emissionDate,
             });
         } catch (err) {
             console.log(err);

@@ -5,10 +5,11 @@ import Swal from 'sweetalert2'
 
 const props = defineProps(["showModal"])
 
+const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8899/api').replace(/\/$/, '')
+
 const programs = ref([])
 const getPrograms = async () => {
-    // const response = await fetch('http://localhost:8899/api/web/programs')
-    const response = await fetch('https://usefcs.unsm.edu.pe/api/web/programs')
+    const response = await fetch(`${apiBaseUrl}/web/programs`)
     const responseData = await response.json()
     programs.value = responseData.programs
 }
@@ -73,8 +74,7 @@ const register = async () => {
         return false
     }
     isDisabled.value = true
-    // let response = await fetch('http://localhost:8899/api/web/inscriptions', {
-    let response = await fetch('https://usefcs.unsm.edu.pe/api/web/inscriptions', {
+    let response = await fetch(`${apiBaseUrl}/web/inscriptions`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json' // Asegura que los datos se envíen como JSON

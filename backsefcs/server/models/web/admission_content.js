@@ -1,0 +1,4 @@
+'use strict';
+module.exports = (sequelize, DataTypes) => sequelize.define('WebAdmission', {
+    id_admission_plan: {allowNull: true, type: DataTypes.INTEGER}, id_process: {allowNull: true, type: DataTypes.INTEGER}, title: {allowNull: true, type: DataTypes.STRING(200)}, subtitle: {allowNull: true, type: DataTypes.STRING(255)}, audience: {allowNull: true, type: DataTypes.STRING(255)}, requirements: {allowNull: true, type: DataTypes.JSONB}, schedule: {allowNull: true, type: DataTypes.JSONB}, calendar: {allowNull: true, type: DataTypes.JSONB}, whatsapp_url: {allowNull: true, type: DataTypes.TEXT}, registration_url: {allowNull: true, type: DataTypes.TEXT}
+}, {timestamps: true, createdAt: 'created_at', updatedAt: 'updated_at', paranoid: false, underscored: true, tableName: 'Web_admission', schema: 'web'});

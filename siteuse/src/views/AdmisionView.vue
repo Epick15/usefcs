@@ -1,489 +1,57 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useSeoMeta } from '@unhead/vue'
 
-import ModalInscription from '@/components/ModalInscription.vue'
+const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8899/api').replace(/\/$/, '')
+const admission = ref({ title: 'ADMISIÓN', subtitle: 'Segunda Especialidad en Obstetricia', audience: '', requirements: [], schedule: [], calendar: [], whatsapp_url: '' })
+const plans = ref([])
+const currency = value => `S/ ${Number(value || 0).toFixed(2)}`
+const total = item => Number(item.amount || 0) * Number(item.cant || 1)
 
-const showModal = ref(false)
-const counter = ref(0)
-
-useSeoMeta({
-  title: 'Admisión | Segunda Especialidad - FCS',
-  description:
-    '¿Quieres empezar tus estudios de Segunda Especialidad en Obstetricia?, conoce los costos, requisitos y horario de estudios.',
-  ogTitle: 'Admisión | Segunda Especialidad - FCS',
-  ogDescription:
-    '¿Quieres empezar tus estudios de Segunda Especialidad en Obstetricia?, aquí te mostramos los requisitos.'
+onMounted(async () => {
+  try {
+    const response = await fetch(`${apiBaseUrl}/web/admission`)
+    if (!response.ok) throw new Error('No se pudo obtener la admisión')
+    const data = await response.json()
+    admission.value = { ...admission.value, ...(data.admission || {}) }
+    plans.value = data.plans || []
+  } catch (error) { console.warn('No se pudo cargar la configuración de admisión.', error) }
 })
+
+useSeoMeta({ title: 'Admisión | Segunda Especialidad - FCS', description: 'Información, requisitos, cronograma y costos de admisión.' })
 </script>
 
 <template>
-  <section class="parent-container header-section">
-    <div class="container">
-      <div class="row">
-        <div class="col-auto ms-auto">
-          <img
-            src="../assets/img/unsm.webp"
-            alt="Logo de la Universidad Nacional de San Martín"
-            class="logo"
-          />
-        </div>
-        <div class="col col-md">
-          <div class="mb-3 unsm-name">UNIVERSIDAD NACIONAL DE SAN MARTÍN</div>
-          <div class="mb-3 fcs-name">FACULTAD DE CIENCIAS DE LA SALUD</div>
-        </div>
-        <div class="col-auto me-auto">
-          <img
-            src="../assets/img/fcs.webp"
-            alt="Logo de la Facultad de Ciencias de la Salud"
-            class="logo"
-          />
-        </div>
+  <main class="admission-page">
+    <section class="admission-hero"><div class="container text-center"><p>UNIDAD DE SEGUNDA ESPECIALIDAD · FCS · UNSM</p><h1>{{ admission.title }}</h1><span></span><h2>{{ admission.subtitle }}</h2></div></section>
+    <section class="container admission-content">
+      <h3>{{ admission.audience }}</h3>
+      <div class="row g-4">
+        <div class="col-lg-6"><article class="info-card"><h4>REQUISITOS DE INSCRIPCIÓN</h4><ul><li v-for="item in admission.requirements" :key="item">{{ item }}</li></ul></article></div>
+        <div class="col-lg-6"><article class="info-card"><h4>HORARIO DE CLASES</h4><div v-for="item in admission.schedule" :key="item.day" class="schedule-row"><strong>{{ item.day }}</strong><span>{{ item.time }}</span><small>{{ item.detail }}</small></div></article></div>
       </div>
-    </div>
-  </section>
-
-  <section class="parent-container bg-white admision-section">
-    <div class="container">
-      <div class="row">
-        <div class="col mt-4 d-flex align-items-center justify-content-center">
-          <div class="text-center">
-            <div class="admision-title">ADMISIÓN 2026-II</div>
-            <div class="admision-subtitle">Segunda Especialidad en Obstetricia</div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col mt-5">
-          <div class="article-title">DIRIGIDO A PROFESIONALES TITULADOS EN OBSTETRICIA</div>
-        </div>
-      </div>
-      <!-- <div class="row">
-                <div class="col mt-3">
-                    <div class="link-inscription">
-                        <i class="fa-solid fa-angle-right"></i>
-                        <i class="fa-solid fa-angle-right"></i>
-                        <i class="fa-solid fa-angle-right"></i>
-                        <i><a href="https://drive.google.com/file/d/1-M23puW3Xii_JicgbGgrDX_1A8KF5TuG/view?usp=sharing" target="_blank" class="mx-2">RESULTADOS 2024-I</a></i>
-                        <i class="fa-solid fa-angle-left"></i>
-                        <i class="fa-solid fa-angle-left"></i>
-                        <i class="fa-solid fa-angle-left"></i>
-                    </div>
-                </div>
-            </div> -->
-      <div class="row">
-        <div class="col">
-          <div class="list-group list-programs">
-            <RouterLink
-              to="/obstetricia-de-alto-riesgo"
-              class="list-group-item list-group-item-action"
-            >
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  Segunda Especialidad en Obstetricia de Alto Riesgo con mención en Cuidados
-                  Intensivos Maternos
-                </h5>
-              </div>
-            </RouterLink>
-            <RouterLink to="/ecografia-obstetrica" class="list-group-item list-group-item-action">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  Segunda Especialidad en Ecografía Obstétrica con mención en Monitoreo Fetal
-                  Electrónico
-                </h5>
-              </div>
-            </RouterLink>
-            <RouterLink to="/salud-reproductiva" class="list-group-item list-group-item-action">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  Segunda Especialidad en Salud Reproductiva con mención en Prevención de Cáncer de
-                  Cuello Uterino y Mama
-                </h5>
-              </div>
-            </RouterLink>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col mt-5 requirements">
-          <!-- <div class="mb-3">DIRIGIDO A PROFESIONALES TITULADOS EN OBSTETRICIA</div> -->
-          <div class="article-title">REQUISITOS DE INSCRIPCIÓN</div>
-          <div class="">
-            <ul class="requirements-list">
-              <li>Copia simple del Título Profesional de Obstetra registrado en SUNEDU.</li>
-              <li>Copia simple del DNI.</li>
-              <li>
-                Solicitud de inscripción, compromiso de pago de estudios, compromiso de entrega de
-                documentos (en caso de faltar uno o más requisitos), Declaración jurada.
-              </li>
-              <li>Recibo de pago por derecho de inscripción y/o admisión.</li>
-              <li>Ficha de datos.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="row gx-2">
-        <div class="article-title mt-5">HORARIO DE CLASES</div>
-        <div class="col-md-6">
-          <div class="card text-center">
-            <div class="card-header">SÁBADOS</div>
-            <div class="card-body">
-              <h5 class="card-title">3:00 pm - 8:00 pm</h5>
-              <p class="card-text">5 horas</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 mt-3 mt-md-0">
-          <div class="card text-center">
-            <div class="card-header">DOMINGOS</div>
-            <div class="card-body">
-              <h5 class="card-title">8:00 am - 1:00 pm</h5>
-              <p class="card-text">5 horas</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col mt-5 admision-horario">
-          <div class="article-title">CRONOGRAMA DE ADMISIÓN</div>
-          <table class="table table-sm table-bordered table-cronograma">
-            <tbody>
-              <tr>
-                <td>Inscripción y presentación de documentos</td>
-                <td>Hasta el 04 de marzo 2026 (Hora límite 2:45 pm)</td>
-              </tr>
-              <tr>
-                <td>Evaluación de expedientes</td>
-                <td>05 y 06 de marzo 2026</td>
-              </tr>
-              <tr>
-                <td>Examen de admisión</td>
-                <td>07 de marzo 2026 (9 a 12 am)</td>
-              </tr>
-              <tr>
-                <td>Entrevista personal</td>
-                <td>07 de marzo 2026 (2 a 5 pm)</td>
-              </tr>
-              <tr>
-                <td>Publicación de resultados</td>
-                <td>08 de marzo 2026 (4 pm)</td>
-              </tr>
-              <tr>
-                <td>Acreditación de ingresantes (virtual)</td>
-                <td>Hasta el 20 de marzo 2026</td>
-              </tr>
-              <tr>
-                <td>Inicio de clases, ciclo I</td>
-                <td>21 de marzo 2026</td>
-              </tr>
-              <tr>
-                <td>Fin de clases</td>
-                <td>30 de agosto 2026</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col mt-5">
-          <div class="col-12 admision-horario">
-            <div class="article-title">COSTOS DE ENSEÑANZA</div>
-            <table class="table table-sm table-bordered">
-              <thead>
-                <tr>
-                  <th>CONCEPTO</th>
-                  <th>CANT</th>
-                  <th>COSTO</th>
-                  <th>TOTAL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Inscripción y/o admisión</td>
-                  <td>1</td>
-                  <td>S/ 350.00<span style="font-weight: 600"> (Promoción: S/ 200.00)</span></td>
-                  <td>S/ 350.00</td>
-                </tr>
-                <tr>
-                  <td>Matrícula por ciclo</td>
-                  <td>3</td>
-                  <td>S/ 300.00</td>
-                  <td>S/ 900.00</td>
-                </tr>
-                <tr>
-                  <td>Pensión de enseñanza (cuota)</td>
-                  <td>18</td>
-                  <td>S/ 350.00</td>
-                  <td>S/ 6300.00</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-12 mt-5 more-info">¿Más información?</div>
-        <div class="col-12">
-          <a
-            href="https://api.whatsapp.com/send?phone=51989032962&text=Hola%2C%20Unidad%20de%20Segunda%20Especialidad%20-%20FCS%2C%20deseo%20informaci%C3%B3n%20acad%C3%A9mica%20y%20administrativa%20sobre%20el%20proceso%20de%20admisión%202026-II%20para%20las%20Segundas%20Especialidades%20de%20Obstetricia"
-            class="btn-inscription-page"
-            target="_blank"
-          >
-            <i class="fa-solid fa-angle-right"></i>
-            <i class="fa-solid fa-angle-right"></i>
-            <i class="fa-solid fa-angle-right"></i>
-            <i><span class="mx-2">CONSULTA</span></i>
-            <i class="fa-solid fa-angle-left"></i>
-            <i class="fa-solid fa-angle-left"></i>
-            <i class="fa-solid fa-angle-left"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- <ModalInscription :show-modal="showModal" :key="counter" /> -->
+      <article v-if="admission.calendar && admission.calendar.length" class="info-card mt-4"><h4>CRONOGRAMA DE ADMISIÓN</h4><div v-for="item in admission.calendar" :key="item.activity" class="calendar-row"><strong>{{ item.activity }}</strong><span>{{ item.date }}</span></div></article>
+      <section class="mt-4"><h3 class="costs-title">COSTOS VIGENTES POR PROGRAMA</h3><div class="row g-4 mt-1"><div v-for="plan in plans" :key="plan.id" class="col-lg-6"><article class="info-card h-100"><h4>{{ plan.Program?.denomination || plan.description }}</h4><div class="table-responsive"><table class="table"><thead><tr><th>Concepto</th><th>Cant.</th><th>Costo</th><th>Total</th></tr></thead><tbody><tr v-for="item in plan.Cost_admission_plans" :key="item.id"><td>{{ item.Concept?.denomination }}</td><td>{{ item.cant }}</td><td>{{ currency(item.amount) }}</td><td>{{ currency(total(item)) }}</td></tr><tr v-if="!plan.Cost_admission_plans?.length"><td colspan="4" class="text-center">No hay costos configurados.</td></tr></tbody></table></div></article></div><div v-if="!plans.length" class="col-12"><article class="info-card text-center">Próximamente se publicarán los costos vigentes.</article></div></div></section>
+      <a v-if="admission.whatsapp_url" :href="admission.whatsapp_url" target="_blank" rel="noopener" class="consult-button"><i class="fa-brands fa-whatsapp"></i><span><small>¿TIENES CONSULTAS?</small>CONSULTAR INFORMACIÓN</span><i class="fa-solid fa-arrow-right"></i></a>
+    </section>
+  </main>
 </template>
 
 <style scoped>
-.admision-title {
-  color: #4f0e30;
-  font-family: BarlowCondensedBold;
-  font-size: 3em;
-  line-height: 1;
-}
-
-.admision-subtitle {
-  color: #811632;
-  font-family: OpenSans;
-  font-size: 1.5em;
-  line-height: 1;
-  margin-top: 15px;
-}
-
-.list-programs h5 {
-  text-align: justify;
-  font-weight: normal;
-}
-
-.requirements-list {
-  text-align: justify;
-  list-style-type: circle;
-}
-
-.requirements-list li {
-  margin-bottom: 10px;
-}
-
-.article-title {
-  color: #811632;
-  font-size: 1.3em;
-  font-weight: bold;
-  padding-bottom: 10px;
-}
-
-.modal {
-  background-color: rgba(50, 50, 50, 0.8) !important;
-}
-
-.modal-header {
-  background-color: #811632;
-  color: white;
-  font-size: 1.1em;
-}
-
-input {
-  box-shadow: none !important;
-  border-width: 2px !important;
-}
-
-input:focus {
-  border: 2px solid #811632;
-}
-
-.btn-enviar {
-  background-color: #811632;
-  border: 1px solid #811632;
-  color: white;
-}
-
-label {
-  margin-bottom: 5px;
-}
-
-.admision-section {
-  background-color: #eef6f5;
-  padding-bottom: 20px;
-  padding-top: 20px;
-}
-
-.btn-inscription-page {
-  background-color: #fff01e;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  display: block;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-}
-
-.btn-inscription-page i {
-  color: black;
-  font-size: 1.4em;
-  font-weight: bold;
-}
-
-.btn-inscription-page i:nth-child(1),
-.btn-inscription-page i:nth-child(7) {
-  animation: encender 1s ease-in-out 0s infinite, apagar 1s ease-in-out 1s infinite;
-}
-
-.btn-inscription-page i:nth-child(2),
-.btn-inscription-page i:nth-child(6) {
-  animation: apagar 1s ease-in-out 0s infinite, encender 1s ease-in-out 1s infinite;
-  animation-delay: 1s;
-}
-
-@keyframes encender {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes apagar {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.admision-horario table {
-  border: 2px solid black;
-  border-collapse: collapse;
-  margin-bottom: 0;
-}
-
-.admision-horario thead,
-th {
-  background-color: #811632 !important;
-}
-
-.admision-horario th {
-  border: 2px solid black !important;
-  color: white;
-  font-family: BarlowBold;
-  font-size: 0.8em;
-  text-align: center;
-}
-
-.admision-horario td {
-  border: 2px solid black !important;
-  font-family: BarlowRegular;
-  font-size: 0.8em;
-  text-align: center;
-  text-wrap: balance;
-  vertical-align: middle;
-}
-
-.table-cronograma tr td:nth-child(1) {
-  font-weight: bold;
-}
-
-.downloads-list {
-  padding-bottom: 10px;
-}
-
-.numbers {
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.more-info {
-  font-size: 1.4em;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  color: #4f0e30;
-}
-
-@media only screen and (min-width: 492px) {
-  .requirements-list {
-    font-size: 1.2em;
-    list-style-type: circle;
-  }
-
-  .requirements-list li {
-    margin-bottom: 10px;
-  }
-
-  .more-info {
-    font-size: 1.7em;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    color: #4f0e30;
-  }
-}
-
-@media only screen and (min-width: 992px) {
-  .admision-horario th {
-    border: 2px solid black !important;
-    color: white;
-    font-family: BarlowBold;
-    font-size: 1.1em;
-    text-align: center;
-  }
-
-  .admision-horario td {
-    border: 2px solid black !important;
-    font-family: BarlowRegular;
-    font-size: 1.1em;
-    text-align: center;
-    text-wrap: balance;
-    vertical-align: middle;
-  }
-
-  .card {
-    font-size: 1.5em;
-  }
-
-  .btn-inscription-page {
-    font-size: 1.6em;
-  }
-}
-
-@media only screen and (min-width: 1200px) {
-  .header-section {
-    background-image: linear-gradient(to bottom, #811633e9, #811632) !important;
-    position: initial !important;
-  }
-
-  /* ADMISION SECTION STYLES */
-  .admision-section {
-    padding-bottom: 30px;
-    padding-top: 30px;
-  }
-
-  .admision-title {
-    font-size: 5em;
-  }
-
-  .admision-subtitle {
-    font-size: 1.8em;
-  }
-}
+.admission-page { background: #f8f6f3; min-height: 100vh; }
+.admission-hero { background: linear-gradient(135deg,#561022,#811632); color:#fff; padding:80px 0 70px; text-align:center; }
+.admission-hero p { color:#e5c681; font-size:.78rem; font-weight:700; letter-spacing:.16em; margin-bottom:14px; }
+.admission-hero h1 { font-family:BarlowBold, sans-serif; font-size:clamp(2.4rem,6vw,4.5rem); margin:0; }
+.admission-hero span { background:#d9b766; display:block; height:3px; margin:18px auto; width:58px; }
+.admission-hero h2 { font-size:clamp(1.05rem,2.5vw,1.45rem); font-weight:400; margin:0; }
+.admission-content { padding:65px 12px 80px; }
+.admission-content > h3 { color:#811632; font-family:BarlowBold,sans-serif; font-size:1.4rem; margin:0 auto 32px; max-width:800px; text-align:center; }
+.costs-title { color:#811632; font-family:BarlowBold,sans-serif; font-size:1.55rem; margin:0; text-align:center; }
+.info-card { background:#fff; border-radius:9px; border-top:3px solid #d9b766; box-shadow:0 8px 24px rgba(65,20,32,.08); overflow:hidden; padding:28px; }
+.info-card h4 { color:#811632; font-family:BarlowBold,sans-serif; font-size:1.35rem; margin-bottom:20px; }
+.info-card ul { line-height:1.8; margin:0; padding-left:20px; }.info-card li { margin-bottom:10px; }
+.schedule-row,.calendar-row { border-bottom:1px solid #eee; display:grid; gap:4px; padding:13px 0; }.schedule-row:last-child,.calendar-row:last-child { border:0; }.schedule-row strong,.calendar-row strong { color:#811632; }.schedule-row small,.muted { color:#777; }
+.calendar-row { grid-template-columns:1fr 1fr; }.calendar-row span { text-align:right; }
+thead { background:#811632; color:white; }.table td,.table th { padding:12px; vertical-align:middle; }.consult-button { align-items:center; background:linear-gradient(135deg,#25d366,#128c7e); border:1px solid rgba(255,255,255,.4); border-radius:10px; box-shadow:0 10px 22px rgba(18,140,126,.28); color:#fff; display:flex; gap:16px; justify-content:center; letter-spacing:.08em; margin:42px auto 0; max-width:440px; padding:13px 24px; text-decoration:none; transition:transform .2s ease,box-shadow .2s ease; }.consult-button:hover { box-shadow:0 14px 27px rgba(18,140,126,.38); color:#fff; transform:translateY(-3px); }.consult-button .fa-whatsapp { font-size:2.25rem; }.consult-button span { display:flex; flex-direction:column; font-size:.92rem; font-weight:800; text-align:left; }.consult-button small { font-size:.62rem; letter-spacing:.14em; margin-bottom:3px; opacity:.85; }.consult-button .fa-arrow-right { font-size:.9rem; }
+@media(max-width:575px){.admission-hero{padding:60px 0}.info-card{padding:22px}.calendar-row{grid-template-columns:1fr}.calendar-row span{text-align:left}}
 </style>

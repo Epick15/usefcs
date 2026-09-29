@@ -81,6 +81,11 @@ morgan.token("id", (req, res) => req.userId);
 morgan.token("body", (req, res) => JSON.stringify(req.body));
 morgan.token("params", (req, res) => JSON.stringify(req.params));
 app.use(cors());
+// La intranet publicada actualmente envía sus credenciales como JSON.  El
+// middleware multipart solo procesa FormData, por lo que soportamos ambos
+// formatos antes de registrar las rutas.
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan(optionMorgan, { stream: accessLogStream }));
 app.use(multipart({ uploadDir: urlServerPlublic }));
 
@@ -95,6 +100,7 @@ app.use(
 app.use("/api/docs", express.static(publicFolder + "/person/docs/"));
 app.use("/api/docs-program", express.static(publicFolder + "/program/"));
 app.use("/api/docs-student", express.static(publicFolder + "/person/student/"));
+app.use("/api/web/authorities", express.static(publicFolder + "/web/authorities/"));
 
 app.use("/api/voucher/:img", verifyToken, async (req, res) => {
   res.sendFile(publicFolder + "/person/voucher/" + req.params.img);
