@@ -4,6 +4,12 @@ $env:NODE_ENV="dev"
 $env:PORT="8899"
 npx nodemon .\bin\www
 
+///// o /////
+
+$node16 = 'C:\Users\ermad\AppData\Local\Author Software\nvm\installs\v16.20.2'
+$env:Path = "$node16;$env:Path"
+npm run dev
+
 frontendt: 
 cd frontsefcs
 npm start
@@ -11,6 +17,7 @@ npm start
 $node16 = 'C:\Users\ermad\AppData\Local\Author Software\nvm\installs\v16.20.2'
 $env:Path = "$node16;$env:Path"
 npm start
+
 MIGRACIONES EN PRODUCCIÓN (Ubuntu):
 cd /srv/backsefcs
 export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"

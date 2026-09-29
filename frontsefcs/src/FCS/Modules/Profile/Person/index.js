@@ -28,6 +28,7 @@ import preview from "../../../../assets/images/user/default.jpg";
 import GetApp from "@material-ui/icons/GetApp";
 import Edit from "@material-ui/icons/Edit";
 import Book from "@material-ui/icons/Book";
+import Event from "@material-ui/icons/Event";
 
 moment.locale("es");
 
@@ -38,6 +39,8 @@ export default class Dashboard extends Component {
             ORGANIC_UNIT: component.ORGANIC_UNIT,
             form: false,
             modalObservation: false,
+            modalAcademicRecordEmission: false,
+            loaderAcademicRecordEmission: false,
             PERSONID: "",
             ALLDATAPERSON: "",
 
@@ -67,6 +70,9 @@ export default class Dashboard extends Component {
             residentProvince: "",
             residentDistrict: "",
             students: [],
+            recordPaymentID: "",
+            academicRecordEmissionDate: "",
+            academicRecordEmissionReason: "",
         };
     }
 
@@ -219,9 +225,13 @@ export default class Dashboard extends Component {
         }
     }
 
-    async reportAcademicRecord(id_student) {
+    async reportAcademicRecord(id_student, id_payment = "") {
         this.setState({ registrationDataLoader: true });
-        const url = app.general + "/report-academic-record/" + id_student;
+        const url =
+            app.general +
+            "/report-academic-record/" +
+            id_student +
+            (id_payment ? "?id_payment=" + id_payment : "");
         try {
             const res = await axios.get(url, app.headers);
             if (res.data) component.pdfReportAutoTableRercordAcademic(res.data);
@@ -251,8 +261,113 @@ export default class Dashboard extends Component {
             this.retrivePersonProfileGOD(this.state.PERSONID);
         }
     };
-    downloadPdf = (id_student) => {
-        this.reportAcademicRecord(id_student);
+    downloadPdf = async (id_student) => {
+        try {
+            const url =
+                app.accounting +
+                "/" +
+                app.payment +
+                "/student/" +
+                id_student +
+                "/academic-record-emission";
+            const res = await axios.get(url, app.headers);
+            this.reportAcademicRecord(id_student, res.data.id_payment);
+        } catch (err) {
+            // Se conserva la descarga para estudiantes cuyo pago de récord aún no existe.
+            this.reportAcademicRecord(id_student);
+        }
+    };
+    openAcademicRecordEmission = async (student) => {
+        this.setState({
+            modalAcademicRecordEmission: true,
+            loaderAcademicRecordEmission: true,
+        });
+        try {
+            const url =
+                app.accounting +
+                "/" +
+                app.payment +
+                "/student/" +
+                student.id +
+                "/academic-record-emission";
+            const res = await axios.get(url, app.headers);
+            this.setState({
+                loaderAcademicRecordEmission: false,
+                recordPaymentID: res.data.id_payment,
+                academicRecordEmissionDate: res.data.academic_record_emission_date
+                    ? moment(res.data.academic_record_emission_date).format("YYYY-MM-DD")
+                    : "",
+                academicRecordEmissionReason:
+                    res.data.academic_record_emission_reason || "",
+            });
+        } catch (err) {
+            this.setState({ loaderAcademicRecordEmission: false });
+            PNotify.error({
+                title: "Oh no!",
+                text:
+                    (err.response && err.response.data.message) ||
+                    "No se encontró la operación de Récord Académico",
+                delay: 2000,
+            });
+        }
+    };
+    closeAcademicRecordEmission = () => {
+        this.setState({
+            modalAcademicRecordEmission: false,
+            loaderAcademicRecordEmission: false,
+            recordPaymentID: "",
+            academicRecordEmissionDate: "",
+            academicRecordEmissionReason: "",
+        });
+    };
+    updateAcademicRecordEmission = async () => {
+        const {
+            recordPaymentID,
+            academicRecordEmissionDate,
+            academicRecordEmissionReason,
+        } = this.state;
+        if (!academicRecordEmissionDate || !academicRecordEmissionReason.trim()) {
+            PNotify.notice({
+                title: "Advertencia!",
+                text: "Complete la fecha de emisión y el motivo",
+                delay: 2000,
+            });
+            return;
+        }
+
+        this.setState({ loaderAcademicRecordEmission: true });
+        const url =
+            app.accounting +
+            "/" +
+            app.payment +
+            "/" +
+            recordPaymentID +
+            "/academic-record-emission";
+        const data = new FormData();
+        data.set("academic_record_emission_date", academicRecordEmissionDate);
+        data.set(
+            "academic_record_emission_reason",
+            academicRecordEmissionReason.trim()
+        );
+        try {
+            const res = await axios.patch(url, data, app.headers);
+            this.closeAcademicRecordEmission();
+            PNotify.success({
+                title: "Finalizado",
+                text: res.data.message,
+                delay: 2000,
+            });
+        } catch (err) {
+            this.setState({ loaderAcademicRecordEmission: false });
+            PNotify.error({
+                title: "Oh no!",
+                text: err.response && err.response.data.message,
+                delay: 2000,
+            });
+        }
+    };
+    handleAcademicRecordEmissionChange = (field) => (event) => {
+        this.setState({ [field]: event.target.value });
     };
     openModalObservation = (r) => {
         this.setState({
@@ -358,6 +473,10 @@ export default class Dashboard extends Component {
             cellPhone,
             modalObservation,
             observation,
+            modalAcademicRecordEmission,
+            loaderAcademicRecordEmission,
+            academicRecordEmissionDate,
+            academicRecordEmissionReason,
         } = this.state;
         return (
             <Aux>
@@ -556,6 +675,26 @@ export default class Dashboard extends Component {
                                                                             }
                                                                         />
                                                                     </OverlayTrigger>
+                                                                    <OverlayTrigger
+                                                                        overlay={
+                                                                            <Tooltip>
+                                                                                FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
+                                                                            </Tooltip>
+                                                                        }
+                                                                    >
+                                                                        <Event
+                                                                            style={{
+                                                                                color: "#6f42c1",
+                                                                                float: "right",
+                                                                                marginRight: "10px",
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                this.openAcademicRecordEmission(
+                                                                                    r
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    </OverlayTrigger>
                                                                 </>
                                                             )}
                                                             <OverlayTrigger
@@ -670,6 +809,77 @@ export default class Dashboard extends Component {
                             {/*        {loader && <span className="spinner-border spinner-border-sm mr-1" role="status"/>}*/}
                             {/*        Guardar Cambios</Button>*/}
                             {/*}*/}
+                        </Modal.Body>
+                    </Modal>
+
+                    <Modal
+                        show={modalAcademicRecordEmission}
+                        backdrop="static"
+                    >
+                        <Modal.Header className="bg-primary">
+                            <Modal.Title as="h5" style={{ color: "#ffffff" }}>
+                                FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
+                            </Modal.Title>
+                            <div className="d-inline-block pull-right">
+                                <span
+                                    type="button"
+                                    onClick={this.closeAcademicRecordEmission}
+                                >
+                                    <i
+                                        className="feather icon-x"
+                                        style={{ fontSize: "20px", color: "white" }}
+                                    />
+                                </span>
+                            </div>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Row>
+                                <Col xs={12}>
+                                    <Form.Group className="form-group fill">
+                                        <Form.Label>
+                                            Fecha de emisión{" "}
+                                            <small className="text-danger">*</small>
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={academicRecordEmissionDate}
+                                            onChange={this.handleAcademicRecordEmissionChange(
+                                                "academicRecordEmissionDate"
+                                            )}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={12}>
+                                    <Form.Group className="form-group fill">
+                                        <Form.Label>
+                                            Motivo del cambio{" "}
+                                            <small className="text-danger">*</small>
+                                        </Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows="3"
+                                            value={academicRecordEmissionReason}
+                                            onChange={this.handleAcademicRecordEmissionChange(
+                                                "academicRecordEmissionReason"
+                                            )}
+                                            placeholder="Indique el motivo de la fecha manual"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={12}>
+                                    <Button
+                                        className="pull-right"
+                                        disabled={
+                                            loaderAcademicRecordEmission ||
+                                            !this.state.recordPaymentID
+                                        }
+                                        variant="primary"
+                                        onClick={this.updateAcademicRecordEmission}
+                                    >
+                                        Guardar fecha
+                                    </Button>
+                                </Col>
+                            </Row>
                         </Modal.Body>
                     </Modal>
 
