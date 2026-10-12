@@ -21,7 +21,6 @@ import GetApp from "@material-ui/icons/GetApp";
 import Backup from "@material-ui/icons/Backup";
 import CloudDone from "@material-ui/icons/CloudDone";
 import Edit from "@material-ui/icons/Edit";
-import Event from "@material-ui/icons/Event";
 import Refresh from "@material-ui/icons/Refresh";
 import moment from "moment";
 import Attachment from "@material-ui/icons/Attachment";
@@ -926,36 +925,6 @@ class Index extends Component {
                                             style={{ color: "#1d86e0" }}
                                             onClick={() =>
                                                 this.retriveData(value)
-                                            }
-                                        />
-                                    </OverlayTrigger>
-                                    <OverlayTrigger
-                                        overlay={
-                                            <Tooltip>
-                                                FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <Event
-                                            style={{color: "#6f42c1"}}
-                                            onClick={() =>
-                                                this.openAcademicRecordEmission(value)
-                                            }
-                                        />
-                                    </OverlayTrigger>
-                                    <OverlayTrigger
-                                        overlay={
-                                            <Tooltip>DESCARGAR RECORD</Tooltip>
-                                        }
-                                    >
-                                        <GetApp
-                                            style={{ color: "#fbb901" }}
-                                            onClick={() =>
-                                                this.downloadPdf(
-                                                    "record",
-                                                    value.id_student,
-                                                    value.id
-                                                )
                                             }
                                         />
                                     </OverlayTrigger>

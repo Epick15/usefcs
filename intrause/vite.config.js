@@ -7,6 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vitejs.dev/config/
 export default defineConfig({
     base: '/intranet/',
+    server: {
+        host: 'localhost',
+        port: 5173,
+        strictPort: true
+    },
     plugins: [
         vue(),
         VitePWA({

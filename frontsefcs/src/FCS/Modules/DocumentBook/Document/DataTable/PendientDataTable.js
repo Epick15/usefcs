@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import MUIDataTable from "mui-datatables";
 import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import Send from "@material-ui/icons/Send";
-import Event from "@material-ui/icons/Event";
 import Close from "@material-ui/icons/Close";
 
 import {
@@ -20,7 +19,6 @@ import component from "../../../../Component";
 import PNotify from "pnotify/dist/es/PNotify";
 import app from "../../../../Constants";
 import axios from "axios";
-import GetApp from "@material-ui/icons/GetApp";
 import moment from "moment";
 import Refresh from "@material-ui/icons/Refresh";
 
@@ -224,35 +222,6 @@ class Index extends Component {
                         } else {
                             return (
                                 <>
-                                    <OverlayTrigger
-                                        overlay={
-                                            <Tooltip>DESCARGAR RECORD</Tooltip>
-                                        }
-                                    >
-                                        <GetApp
-                                            style={{ color: "#fbb901" }}
-                                            onClick={() =>
-                                                this.downloadPdf(
-                                                    value.id_student,
-                                                    value.id
-                                                )
-                                            }
-                                        />
-                                    </OverlayTrigger>
-                                    <OverlayTrigger
-                                        overlay={
-                                            <Tooltip>
-                                                FECHA DE EMISIÓN DE RÉCORD ACADÉMICO
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <Event
-                                            style={{color: "#6f42c1"}}
-                                            onClick={() =>
-                                                this.openAcademicRecordEmission(value)
-                                            }
-                                        />
-                                    </OverlayTrigger>
                                     <OverlayTrigger
                                         overlay={
                                             <Tooltip>
