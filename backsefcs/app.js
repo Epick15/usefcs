@@ -18,6 +18,7 @@ const accounting = require("./server/routes/accounting");
 const person = require("./server/routes/person");
 const registration = require("./server/routes/registration");
 const intranet = require("./server/routes/intranet");
+const integration = require("./server/routes/integration");
 // web
 const web = require("./server/routes/web");
 // end web
@@ -122,6 +123,7 @@ app.use("/api/accounting", accounting);
 app.use("/api/person", person);
 app.use("/api/registration", registration);
 app.use("/api/intranet", intranet);
+app.use("/api/integration", integration);
 // web
 app.use("/api/web", web);
 

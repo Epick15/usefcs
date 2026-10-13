@@ -5,14 +5,24 @@ const basename = path.basename(module.filename);
 const env = process.env.NODE_ENV;
 
 const config = require(`${__dirname}/../config/config.json`)[env];
+const databaseConfig = {
+    ...config,
+    // Permite que cada VPS configure su propia conexión sin versionar secretos
+    // ni depender de un nombre fijo de base de datos.
+    database: process.env.DB_DATABASE || config.database,
+    username: process.env.DB_USERNAME || config.username,
+    password: process.env.DB_PASSWORD || config.password,
+    host: process.env.DB_HOST || config.host,
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : config.port,
+};
 const db = {};
 
 let sequelize;
 sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
+    databaseConfig.database,
+    databaseConfig.username,
+    databaseConfig.password,
+    databaseConfig
 );
 
 fs.readdirSync(__dirname + "/registration")
