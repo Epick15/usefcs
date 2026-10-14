@@ -3,11 +3,19 @@
 const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
+const appRoot = require('app-root-path');
 const {WebContent, WebAuthority, WebAdmission, WebSpecialty, Admission_plan, Cost_admission_plan, Programs, Plan, Ciclo, Course, Concept, Academic_semester} = require('../../models');
-const {URL_PLUBLIC} = require('../Abox');
 
-const uploadDirectory = path.join(URL_PLUBLIC, 'web', 'authorities');
+const publicDirectory = process.env.PUBLIC_DIR || path.join(appRoot.path, 'public');
+const uploadDirectory = path.join(publicDirectory, 'web', 'authorities');
 const allowedExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+const loginBackgroundDirectory = path.join(publicDirectory, 'web', 'login-backgrounds');
+const allowedLoginBackgroundExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
+const serializeContent = content => {
+    if (!content) return content;
+    const data = content.toJSON ? content.toJSON() : content;
+    return {...data, login_background_url: data.login_background_image ? `/api/web/login-backgrounds/${encodeURIComponent(data.login_background_image)}` : null};
+};
 const serializeAuthority = authority => {
     const data = authority.toJSON ? authority.toJSON() : authority;
     return {...data, image_url: data.image ? `/api/web/authorities/${encodeURIComponent(data.image)}` : null};
@@ -29,6 +37,21 @@ async function saveImage(file) {
     await fs.mkdir(uploadDirectory, {recursive: true});
     const filename = `${crypto.randomUUID()}${extension}`;
     await fs.rename(file.path, path.join(uploadDirectory, filename));
+    return filename;
+}
+
+async function saveLoginBackground(file) {
+    if (!file) return null;
+    const extension = path.extname(file.name || '').toLowerCase();
+    if (!allowedLoginBackgroundExtensions.has(extension) || !String(file.type || '').startsWith('image/')) {
+        const error = new Error('La imagen debe ser JPG, PNG, WEBP, GIF o AVIF.'); error.status = 422; throw error;
+    }
+    if (file.size > 500 * 1024) {
+        const error = new Error('La imagen supera el límite de 500 KB. Optimícela con TinyPNG u otro compresor antes de subirla.'); error.status = 422; throw error;
+    }
+    await fs.mkdir(loginBackgroundDirectory, {recursive: true});
+    const filename = `${crypto.randomUUID()}${extension}`;
+    await fs.rename(file.path, path.join(loginBackgroundDirectory, filename));
     return filename;
 }
 
@@ -91,23 +114,44 @@ module.exports = {
         try {
             const content = await WebContent.findOne({order: [['id', 'ASC']]});
             const authorities = await WebAuthority.findAll({where: {published: true}, order: [['display_order', 'ASC'], ['id', 'ASC']]});
-            res.status(200).send({content, authorities: authorities.map(serializeAuthority)});
+            res.status(200).send({content: serializeContent(content), authorities: authorities.map(serializeAuthority)});
         } catch (error) { res.status(500).send({message: 'No se pudo obtener el contenido del sitio.'}); }
     },
     adminContent: async (req, res) => {
         try {
             const content = await WebContent.findOne({order: [['id', 'ASC']]});
             const authorities = await WebAuthority.findAll({order: [['display_order', 'ASC'], ['id', 'ASC']]});
-            res.status(200).send({content, authorities: authorities.map(serializeAuthority)});
+            res.status(200).send({content: serializeContent(content), authorities: authorities.map(serializeAuthority)});
         } catch (error) { res.status(500).send({message: 'No se pudo obtener el contenido del sitio.'}); }
     },
     updateContent: async (req, res) => {
+        const backgroundFile = req.files && req.files.login_background_image;
         try {
-            const values = {presentation: req.body.presentation || '', mission: req.body.mission || '', vision: req.body.vision || ''};
+            const fields = ['presentation', 'mission', 'vision', 'login_entity_name', 'login_welcome_title', 'login_welcome_description', 'login_form_title', 'login_form_description', 'login_text_color', 'login_background_text_color', 'login_form_position', 'login_background_text_visible'];
+            const values = fields.reduce((result, field) => {
+                if (Object.prototype.hasOwnProperty.call(req.body, field)) result[field] = req.body[field] || '';
+                return result;
+            }, {});
+            if (values.login_text_color && !/^#[0-9a-f]{6}$/i.test(values.login_text_color)) {
+                return res.status(422).send({message: 'El color del texto debe tener formato hexadecimal, por ejemplo #7c003e.'});
+            }
+            if (values.login_background_text_color && !/^#[0-9a-f]{6}$/i.test(values.login_background_text_color)) {
+                return res.status(422).send({message: 'El color del texto sobre la imagen debe tener formato hexadecimal, por ejemplo #ffffff.'});
+            }
+            if (values.login_form_position && !['left', 'center', 'right'].includes(values.login_form_position)) {
+                return res.status(422).send({message: 'La posición del formulario no es válida.'});
+            }
+            if (Object.prototype.hasOwnProperty.call(values, 'login_background_text_visible')) {
+                values.login_background_text_visible = values.login_background_text_visible !== 'false';
+            }
             let content = await WebContent.findOne({order: [['id', 'ASC']]});
+            const oldBackground = content && content.login_background_image;
+            if (backgroundFile) values.login_background_image = await saveLoginBackground(backgroundFile);
+            if (req.body.remove_login_background_image === 'true') values.login_background_image = null;
             if (content) await content.update(values); else content = await WebContent.create(values);
-            res.status(200).send({message: 'Contenido actualizado.', content});
-        } catch (error) { res.status(500).send({message: 'No se pudo actualizar el contenido.'}); }
+            if ((backgroundFile || values.login_background_image === null) && oldBackground) await fs.unlink(path.join(loginBackgroundDirectory, oldBackground)).catch(() => {});
+            res.status(200).send({message: 'Contenido actualizado.', content: serializeContent(content)});
+        } catch (error) { await removeTempFile(backgroundFile); res.status(error.status || 500).send({message: error.message || 'No se pudo actualizar el contenido.'}); }
     },
     createAuthority: async (req, res) => {
         const file = req.files && req.files.image;
