@@ -23,7 +23,22 @@ export default class WebContent extends Component {
         loading: false,
         saving: false,
         activeTab: "about",
-        content: { presentation: "", mission: "", vision: "" },
+        content: {
+            presentation: "",
+            mission: "",
+            vision: "",
+            login_entity_name: "SEGUNDA ESPECIALIDAD FCS",
+            login_welcome_title: "Bienvenido!",
+            login_welcome_description:
+                "Inicie en su cuenta y explore las funcionalidades del software de gestion de SEGUNDA ESPECIALIDAD FCS",
+            login_form_title: "Iniciar Sesion",
+            login_form_description:
+                "Por favor Ingrese Usuario y Contraseña",
+            login_text_color: "#7c003e",
+            login_background_text_color: "#ffffff",
+            login_form_position: "right",
+            login_background_text_visible: true,
+        },
         authorities: [],
         authority: emptyAuthority,
         admission: {
@@ -41,6 +56,8 @@ export default class WebContent extends Component {
         specialties: [],
         programs: [],
         specialty: null,
+        loginBackgroundImage: null,
+        removeLoginBackgroundImage: false,
     };
 
     componentDidMount() {
@@ -85,6 +102,10 @@ export default class WebContent extends Component {
         this.setState({
             content: { ...this.state.content, [field]: event.target.value },
         });
+    changeContentBoolean = (field) => (event) =>
+        this.setState({
+            content: { ...this.state.content, [field]: event.target.checked },
+        });
     changeAuthority = (field) => (event) =>
         this.setState({
             authority: {
@@ -124,6 +145,66 @@ export default class WebContent extends Component {
             });
         }
         this.setState({ saving: false });
+    };
+
+    saveLoginContent = async () => {
+        this.setState({ saving: true });
+        try {
+            const data = new FormData();
+            [
+                "login_entity_name",
+                "login_welcome_title",
+                "login_welcome_description",
+                "login_form_title",
+                "login_form_description",
+                "login_text_color",
+                "login_background_text_color",
+                "login_form_position",
+                "login_background_text_visible",
+            ].forEach((field) => data.set(field, this.state.content[field] || ""));
+            if (this.state.loginBackgroundImage instanceof File)
+                data.set("login_background_image", this.state.loginBackgroundImage);
+            data.set(
+                "remove_login_background_image",
+                this.state.removeLoginBackgroundImage,
+            );
+            await axios.patch(`${app.web}/about`, data, app.headers);
+            PNotify.success({
+                title: "Guardado",
+                text: "Contenido del inicio de sesión actualizado.",
+                delay: 2000,
+            });
+            this.setState({
+                loginBackgroundImage: null,
+                removeLoginBackgroundImage: false,
+            });
+            this.load();
+        } catch (error) {
+            PNotify.error({
+                title: "Error",
+                text:
+                    (error.response && error.response.data.message) ||
+                    "No se pudo guardar el contenido del inicio de sesión.",
+                delay: 3000,
+            });
+        }
+        this.setState({ saving: false });
+    };
+
+    selectLoginBackground = (event) => {
+        const image = event.target.files[0] || null;
+        if (image && image.size > 500 * 1024) {
+            event.target.value = "";
+            return PNotify.error({
+                title: "Imagen demasiado pesada",
+                text: "El fondo no puede superar 500 KB. Optimízalo con TinyPNG u otro compresor antes de subirlo.",
+                delay: 4000,
+            });
+        }
+        this.setState({
+            loginBackgroundImage: image,
+            removeLoginBackgroundImage: false,
+        });
     };
 
     saveAuthority = async () => {
@@ -413,6 +494,7 @@ export default class WebContent extends Component {
                         Admisión
                     </Button>
                     <Button
+                        className="mr-2"
                         variant={
                             this.state.activeTab === "specialties"
                                 ? "primary"
@@ -423,6 +505,16 @@ export default class WebContent extends Component {
                         }
                     >
                         Especialidades
+                    </Button>
+                    <Button
+                        variant={
+                            this.state.activeTab === "login"
+                                ? "primary"
+                                : "outline-primary"
+                        }
+                        onClick={() => this.setState({ activeTab: "login" })}
+                    >
+                        Inicio de sesión
                     </Button>
                 </div>
                 {this.state.activeTab === "about" && (
@@ -1211,6 +1303,159 @@ export default class WebContent extends Component {
                             </Col>
                         </Row>
                     )}
+                {this.state.activeTab === "login" && (
+                    <Row>
+                        <Col lg={9}>
+                            <Card>
+                                <Card.Header>
+                                    <h5>INICIO DE SESIÓN ADMINISTRATIVO</h5>
+                                </Card.Header>
+                                <Card.Body>
+                                    <p className="text-muted">
+                                        Personaliza los textos que se muestran en
+                                        la página de acceso al panel administrativo.
+                                    </p>
+                                    <Form.Group>
+                                        <Form.Label>Nombre de la institución</Form.Label>
+                                        <Form.Control
+                                            value={content.login_entity_name || ""}
+                                            placeholder="SEGUNDA ESPECIALIDAD FCS"
+                                            onChange={this.changeContent("login_entity_name")}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Título de bienvenida</Form.Label>
+                                        <Form.Control
+                                            value={content.login_welcome_title || ""}
+                                            placeholder="Bienvenido!"
+                                            onChange={this.changeContent("login_welcome_title")}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Descripción de bienvenida</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            value={content.login_welcome_description || ""}
+                                            placeholder="Inicie en su cuenta y explore las funcionalidades del software."
+                                            onChange={this.changeContent("login_welcome_description")}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Título del formulario</Form.Label>
+                                        <Form.Control
+                                            value={content.login_form_title || ""}
+                                            placeholder="Iniciar Sesión"
+                                            onChange={this.changeContent("login_form_title")}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Indicaciones del formulario</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={2}
+                                            value={content.login_form_description || ""}
+                                            placeholder="Por favor ingrese usuario y contraseña."
+                                            onChange={this.changeContent("login_form_description")}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Color de texto del formulario</Form.Label>
+                                        <Form.Control
+                                            type="color"
+                                            value={content.login_text_color || "#7c003e"}
+                                            onChange={this.changeContent("login_text_color")}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            Por defecto: guinda. Se aplica al nombre institucional, título e indicaciones del formulario.
+                                        </Form.Text>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Color de texto sobre la imagen</Form.Label>
+                                        <Form.Control
+                                            type="color"
+                                            value={content.login_background_text_color || "#ffffff"}
+                                            onChange={this.changeContent("login_background_text_color")}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            Por defecto: blanco. Se aplica al título y descripción mostrados sobre la imagen de fondo.
+                                        </Form.Text>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Ubicación del formulario</Form.Label>
+                                        <Form.Check
+                                            className="mb-3"
+                                            type="checkbox"
+                                            label="Mostrar texto sobre la imagen de fondo"
+                                            checked={content.login_background_text_visible !== false}
+                                            onChange={this.changeContentBoolean("login_background_text_visible")}
+                                        />
+                                        <Form.Control
+                                            as="select"
+                                            value={content.login_form_position || "right"}
+                                            onChange={this.changeContent("login_form_position")}
+                                        >
+                                            <option value="left">Izquierda</option>
+                                            <option value="center">Centro</option>
+                                            <option value="right">Derecha</option>
+                                        </Form.Control>
+                                        <Form.Text className="text-muted">
+                                            Por defecto: derecha.
+                                        </Form.Text>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Imagen de fondo</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                                            onChange={this.selectLoginBackground}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            JPG, PNG, WEBP, GIF o AVIF. Máximo 500 KB.
+                                            Si pesa más, optimízala con TinyPNG antes de subirla.
+                                        </Form.Text>
+                                        {content.login_background_url && !this.state.removeLoginBackgroundImage && (
+                                            <div className="mt-3">
+                                                <img
+                                                    src={`${app.server.replace(/\/api\/?$/, "")}${content.login_background_url}`}
+                                                    alt="Fondo actual del login"
+                                                    style={{ width: "100%", maxWidth: 360, maxHeight: 140, objectFit: "cover" }}
+                                                />
+                                                <Button
+                                                    className="ml-2"
+                                                    size="sm"
+                                                    variant="outline-danger"
+                                                    onClick={() => this.setState({ removeLoginBackgroundImage: true, loginBackgroundImage: null })}
+                                                >
+                                                    Restablecer fondo predeterminado
+                                                </Button>
+                                            </div>
+                                        )}
+                                        {this.state.loginBackgroundImage && (
+                                            <Form.Text className="text-success">
+                                                Nueva imagen: {this.state.loginBackgroundImage.name}
+                                            </Form.Text>
+                                        )}
+                                    </Form.Group>
+                                    <Button disabled={saving} onClick={this.saveLoginContent}>
+                                        Guardar inicio de sesión
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col lg={3}>
+                            <Card>
+                                <Card.Body>
+                                    <strong>Alcance</strong>
+                                    <p className="mb-0 mt-2">
+                                        Esta sección modifica solo los textos visibles.
+                                        Usuarios, contraseñas y roles se gestionan en Seguridad.
+                                    </p>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                )}
                 </section>
             </>
         );

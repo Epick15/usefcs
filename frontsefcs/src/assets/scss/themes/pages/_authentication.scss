@@ -191,5 +191,44 @@
         padding: 70px 40px;
     }
 }
+
+@media only screen and (min-width: 992px) {
+    .login-form-left {
+        .auth-side-img {
+            padding-left: 400px;
+            padding-right: 0;
+        }
+
+        .auth-side-form {
+            float: left;
+        }
+    }
+
+    .login-form-center {
+        .auth-side-img {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .auth-side-form {
+            display: flex;
+            float: none;
+            width: 460px;
+            min-height: auto;
+            margin: 8vh auto;
+            padding: 18px 12px;
+            background: rgba(255, 255, 255, .93);
+            border: 1px solid rgba(255, 255, 255, .72);
+            border-radius: 22px;
+            box-shadow: 0 18px 48px rgba(38, 15, 24, .28);
+            backdrop-filter: blur(8px);
+
+            .auth-content:not(.container) {
+                width: 100%;
+                padding: 22px 30px;
+            }
+        }
+    }
+}
 /* image varient End */
 /**====== Authentication css end ======**/

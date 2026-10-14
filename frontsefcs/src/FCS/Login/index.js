@@ -27,8 +27,15 @@ class Login extends React.Component {
         multipleUser: false,
         roles: [],
         sessionData: [],
+        loginContent: {},
     };
 
+    componentDidMount() {
+        axios.get(`${app.web}/about`)
+            .then((response) => this.setState({loginContent: response.data.content || {}}))
+            // The login remains available before the content migration is applied.
+            .catch(() => {});
+    }
 
     onKeyUp = () => {
         this.setState({root: true});
@@ -192,25 +199,46 @@ class Login extends React.Component {
     };
 
     render() {
-        const {newUser, user, pass, root, multipleUser, roles} = this.state;
+        const {newUser, user, pass, root, multipleUser, roles, loginContent} = this.state;
+        const loginEntityName = loginContent.login_entity_name || config.entityName;
+        const loginWelcomeTitle = loginContent.login_welcome_title || 'Bienvenido!';
+        const loginWelcomeDescription = loginContent.login_welcome_description || `Inicie en su cuenta y explore las funcionalidades del software de gestion de ${loginEntityName}`;
+        const loginFormTitle = loginContent.login_form_title || 'Iniciar Sesion';
+        const loginFormDescription = loginContent.login_form_description || 'Por favor ingrese usuario y contraseña';
+        const loginTextColor = /^#[0-9a-f]{6}$/i.test(loginContent.login_text_color || '')
+            ? loginContent.login_text_color
+            : '#7c003e';
+        const loginBackgroundTextColor = /^#[0-9a-f]{6}$/i.test(loginContent.login_background_text_color || '')
+            ? loginContent.login_background_text_color
+            : '#ffffff';
+        const loginFormPosition = ['left', 'center', 'right'].includes(loginContent.login_form_position)
+            ? loginContent.login_form_position
+            : 'right';
+        const loginBackgroundTextVisible = loginContent.login_background_text_visible !== false;
+        const loginBackgroundUrl = loginContent.login_background_url
+            ? `${app.server.replace(/\/api\/?$/, '')}${loginContent.login_background_url}`
+            : null;
         return (
             <>
                 <Breadcrumb/>
-                <div className="auth-wrapper align-items-stretch aut-bg-img">
+                <div
+                    className={`auth-wrapper align-items-stretch aut-bg-img login-form-${loginFormPosition}`}
+                    style={loginBackgroundUrl ? {backgroundImage: `url("${loginBackgroundUrl}")`} : null}
+                >
                     <div className="flex-grow-1">
                         <div className="h-100 d-md-flex align-items-center auth-side-img">
-                            <div className="col-sm-10 auth-content w-auto">
-                                {/*<img src={authLogo} alt="" className="img-fluid"/>*/}
-                                <h1 className="text-white my-4">Bienvenido!</h1>
-                                <h4 className="text-white font-weight-normal">Inicie en su cuenta y explore las
-                                    funcionalidades del software de gestion de {config.entityName}</h4>
-                            </div>
+                            {loginBackgroundTextVisible && (
+                                <div className="col-sm-10 auth-content w-auto">
+                                    {/*<img src={authLogo} alt="" className="img-fluid"/>*/}
+                                    <h1 className="my-4" style={{color: loginBackgroundTextColor}}>{loginWelcomeTitle}</h1>
+                                    <h4 className="font-weight-normal" style={{color: loginBackgroundTextColor}}>{loginWelcomeDescription}</h4>
+                                </div>
+                            )}
                         </div>
                         <div className="auth-side-form">
                             <div className=" auth-content">
                                 {/*<img src={authLogoDark} alt="" className="img-fluid mb-4 d-block d-xl-none d-lg-none"/>*/}
-                                <h1 className="mb-3"> <span
-                                    className="text-c-blue">{config.entityName}</span></h1>
+                                <h1 className="mb-3" style={{color: loginTextColor}}>{loginEntityName}</h1>
                                 {
                                     root && newUser ?
                                         <Row style={{marginLeft: '0px'}}>
@@ -248,8 +276,7 @@ class Login extends React.Component {
 
                                             </Row>
                                             :
-                                            <h3 className="mb-3">Iniciar <span className="text-c-blue">Sesion</span>
-                                            </h3>
+                                            <h3 className="mb-3" style={{color: loginTextColor}}>{loginFormTitle}</h3>
 
                                 }
 
@@ -261,7 +288,7 @@ class Login extends React.Component {
                                             contraseña</p>
                                         :
                                         !multipleUser &&
-                                        <p>Por favor Ingrese Usuario y Contraseña</p>
+                                        <p style={{color: loginTextColor}}>{loginFormDescription}</p>
                                 }
                                 {multipleUser && <p>Por favor Seleccione un Usuario</p>}
                                 {
