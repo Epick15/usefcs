@@ -34,3 +34,6 @@ REINICIO BACKEND EN PRODUCCIÓN (PM2):
 su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 restart se-back --update-env'
 su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 save'
 su - ubuntu -s /bin/bash -c 'export PATH="/home/ubuntu/.nvm/versions/node/v16.20.2/bin:$PATH"; pm2 list'
+
+
+
