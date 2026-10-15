@@ -110,7 +110,7 @@ class Index extends Component {
                 }
             },
             customToolbar: () => {
-                if (this.props.activate && (!this.props.acta || !this.props.actaState)) {
+                if (!this.props.blocked && this.props.activate && (!this.props.acta || !this.props.actaState)) {
                     return (
                         <>
 
@@ -247,6 +247,15 @@ class Index extends Component {
                         }
                     },
                 }
+            },
+            {
+                name: "PAGOS PENDIENTES",
+                options: {
+                    filter: false,
+                    sort: false,
+                    display: this.props.blocked,
+                    customBodyRender: (value) => value || "Sin pagos pendientes"
+                }
             }
 
 
@@ -262,6 +271,9 @@ class Index extends Component {
                             r.document_number,
                             r.registration_course_note_letter,
                             r,
+                            r.payment_status && r.payment_status.pending_concepts.length > 0
+                                ? [...new Set(r.payment_status.pending_concepts)].join(", ")
+                                : "Sin pagos pendientes",
                         ])
                     )
                 }
@@ -272,7 +284,7 @@ class Index extends Component {
 
             <MuiThemeProvider theme={this.getMuiTheme()}>
                 <MUIDataTable
-                    title={"LISTADO DE ESTUDIANTES"}
+                    title={this.props.title || "LISTADO DE ESTUDIANTES"}
                     data={data}
                     columns={columns}
                     options={options}

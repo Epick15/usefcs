@@ -398,9 +398,21 @@ class FormAcademicRecord extends React.Component {
                 } catch (err) {
                     console.log(err.response);
                     this.setState({ loaderRegistration: false });
+                    const errorMessage = err.response && err.response.data && err.response.data.message;
+                    if (errorMessage && errorMessage.includes("pago de inscripción")) {
+                        this.closeForm();
+                        setTimeout(() => Swal.fire({
+                            icon: "warning",
+                            title: "Matrícula no habilitada",
+                            html: "El estudiante aún tiene pendiente el <strong>pago de inscripción</strong>. Registre o valide el pago en Contabilidad antes de continuar.",
+                            confirmButtonText: "Entendido",
+                            confirmButtonColor: "#7c003e",
+                        }), 150);
+                        return;
+                    }
                     PNotify.error({
                         title: "Oh no!",
-                        text: err.response.data.message,
+                        text: errorMessage || "No se pudo registrar la matrícula",
                         delay: 2000,
                     });
                 }

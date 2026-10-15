@@ -41,6 +41,62 @@ const moment = require("moment");
 const abox = require("../Abox");
 const generator = require("voucher-code-generator");
 const { aprovedDesaproved } = require("../general/migrate");
+
+const PAID_INSCRIPTION = "Inscripción";
+
+const requirePaidInscription = async ({ idStudent, idProgram }, transaction) => {
+    const student = await Student.findOne({
+        where: {
+            id: idStudent,
+        },
+        transaction,
+    });
+
+    if (!student) {
+        throw { message: "No se encontró al estudiante en el programa seleccionado" };
+    }
+
+    const programId = idProgram || student.id_program;
+    const paidInscription = await Payment.findOne({
+        where: {
+            id_student: idStudent,
+            id_program: programId,
+            id_cost_admission: student.id_cost_admission,
+            denomination: PAID_INSCRIPTION,
+            type: "Pagado",
+        },
+        transaction,
+    });
+
+    if (!paidInscription) {
+        throw {
+            message:
+                "No se puede registrar la matrícula porque el pago de inscripción está pendiente",
+        };
+    }
+};
+
+const requirePaidRegistrationPayments = async (idRegistration, transaction) => {
+    const payments = await Payment.findAll({
+        where: {
+            id_registration: idRegistration,
+            denomination: {[Op.in]: ['Matrícula', 'Pensión']},
+        },
+        transaction,
+    });
+    const paidRegistration = payments.some(payment =>
+        payment.denomination === 'Matrícula' && payment.type === 'Pagado'
+    );
+    const pendingPayments = payments.filter(payment => payment.type !== 'Pagado');
+
+    if (!paidRegistration || pendingPayments.length > 0) {
+        throw {
+            message:
+                'No se pueden registrar notas: la matrícula y todas las pensiones del ciclo deben estar pagadas',
+        };
+    }
+};
+
 module.exports = {
     // listRegistrationCourse: async (req, res) => {
     //     try {
@@ -1081,6 +1137,16 @@ module.exports = {
                     throw { message: "No ha seleccionado ningun curso" };
                 }
 
+                // La inscripción debe estar pagada antes de generar cualquier
+                // matrícula, incluso si la petición no proviene de la interfaz.
+                await requirePaidInscription(
+                    {
+                        idStudent: req.body.id_student,
+                        idProgram: req.body.id_program,
+                    },
+                    t
+                );
+
                 // Validamos por curso para permitir matriculas de otro ciclo
                 // en el mismo semestre/proceso sin duplicar asignaturas.
                 if (
@@ -1813,8 +1879,11 @@ module.exports = {
                 let dataCourse = JSON.parse(req.body.courses);
                 for (let i = 0; i < dataCourse.length; i++) {
                     course = await Registration_course.findByPk(
-                        dataCourse[i].id
+                        dataCourse[i].id,
+                        {transaction: t}
                     );
+                    if (!course) throw {message: 'No se encontró el curso matriculado'};
+                    await requirePaidRegistrationPayments(course.id_registration, t);
                     let state =
                         dataCourse[i].note >= 14 ? "Aprobado" : "Desaprobado";
                     registrationCourseCreate = await course.update(
@@ -1840,7 +1909,9 @@ module.exports = {
     updateRegistrationCourseNote: async (req, res) => {
         try {
             await ST.transaction(async (t) => {
-                let data = await Registration_course.findByPk(req.body.id);
+                let data = await Registration_course.findByPk(req.body.id, {transaction: t});
+                if (!data) throw {message: 'No se encontró el curso matriculado'};
+                await requirePaidRegistrationPayments(data.id_registration, t);
                 let state = req.body.note >= 14 ? "Aprobado" : "Desaprobado";
                 await data.update(
                     {
@@ -1941,6 +2012,7 @@ module.exports = {
                     { transaction: t }
                 );
                 if (registration) {
+                    await requirePaidRegistrationPayments(registration.id, t);
                     updateRegistration = await registration.update(
                         {
                             note: req.body.note,

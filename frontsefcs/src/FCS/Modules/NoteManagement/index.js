@@ -6,6 +6,8 @@ import PNotify from "pnotify/dist/es/PNotify";
 import moment from "moment";
 import TitleModule from "../../TitleModule";
 import {
+    Alert,
+    Badge,
     Button,
     Card,
     Col,
@@ -615,6 +617,25 @@ class NoteManagement extends Component {
         const { organicUnits, organicUnit, programs, admissionPlans } =
             this.state;
         const { processs, schedules } = this.state;
+        const eligibleStudents = this.state.students.filter(student =>
+            student.payment_status && student.payment_status.can_enter_grade
+        );
+        const blockedStudents = this.state.students.filter(student =>
+            !student.payment_status || !student.payment_status.can_enter_grade
+        );
+        const fieldStyle = {
+            minHeight: "42px",
+            borderColor: "#d9dee7",
+            borderRadius: "7px",
+            boxShadow: "none",
+            fontSize: "0.86rem",
+        };
+        const readOnlyFieldStyle = {
+            ...fieldStyle,
+            background: "#f5f7fa",
+            color: "#445064",
+            fontWeight: 600,
+        };
         return (
             <>
                 <TitleModule
@@ -623,14 +644,65 @@ class NoteManagement extends Component {
                     fatherModuleUrl={""}
                     fatherModuleTitle={""}
                 />
-                <Card style={{ marginBottom: "5px" }}>
-                    <Card.Header>
-                        <Row>
+                <Card
+                    style={{
+                        marginBottom: "20px",
+                        border: "none",
+                        borderRadius: "14px",
+                        boxShadow: "0 8px 24px rgba(31, 45, 61, 0.10)",
+                        overflow: "hidden",
+                    }}
+                >
+                    <Card.Header
+                        style={{
+                            background: "#fff",
+                            border: "none",
+                            padding: "22px 24px",
+                        }}
+                    >
+                        <div className="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                            <div>
+                                <h5 className="mb-1" style={{ color: "#79003c", fontWeight: 700 }}>
+                                    Configuración de calificaciones
+                                </h5>
+                                <small className="text-muted">
+                                    Seleccione el curso para consultar a los estudiantes y registrar sus notas.
+                                </small>
+                            </div>
+                            <Badge
+                                pill
+                                style={{
+                                    background: schedule ? "#e4f5ec" : "#f2f4f7",
+                                    color: schedule ? "#147a42" : "#6c757d",
+                                    fontSize: "0.78rem",
+                                    fontWeight: 600,
+                                    padding: "8px 12px",
+                                    marginTop: "6px",
+                                }}
+                            >
+                                {schedule ? "Curso seleccionado" : "Pendiente de selección"}
+                            </Badge>
+                        </div>
+                        <div
+                            style={{
+                                background: "#fafbfc",
+                                border: "1px solid #eef0f4",
+                                borderRadius: "10px",
+                                padding: "18px",
+                            }}
+                        >
+                        <div className="d-flex align-items-center mb-3">
+                            <span style={{ color: "#79003c", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                                Selección académica
+                            </span>
+                            <div style={{ background: "#e7eaf0", height: "1px", flex: 1, marginLeft: "12px" }} />
+                        </div>
+                        <Row style={{ rowGap: "16px" }}>
                             {!component.ORGANIC_UNIT && (
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>
                                     <Form.Group
-                                        className="form-group fill "
-                                        style={{ zIndex: 10000 }}
+                                        className="form-group fill mb-0"
+                                        style={{ zIndex: 10000, marginBottom: 0 }}
                                     >
                                         <Form.Label
                                             className="floating-label"
@@ -661,11 +733,10 @@ class NoteManagement extends Component {
                                             styles={component.selectSearchStyle}
                                         />
                                     </Form.Group>
-                                    <br />
                                 </Col>
                             )}
                             <Col xs={12} sm={12} md={6} lg={6} xl={6}>
-                                <Form.Group className="form-group fill">
+                                <Form.Group className="form-group fill mb-0">
                                     <Form.Label
                                         className="floating-label"
                                         style={
@@ -684,6 +755,7 @@ class NoteManagement extends Component {
                                         as="select"
                                         value={program}
                                         onChange={this.handleChange("program")}
+                                        style={fieldStyle}
                                     >
                                         >
                                         <option defaultValue={true} hidden>
@@ -724,7 +796,7 @@ class NoteManagement extends Component {
                                 </Form.Group>
                             </Col>
                             <Col xs={12} sm={12} md={1} lg={1} xl={1}>
-                                <Form.Group className="form-group fill">
+                                <Form.Group className="form-group fill mb-0">
                                     <Form.Label
                                         className="floating-label"
                                         style={
@@ -752,6 +824,7 @@ class NoteManagement extends Component {
                                             onChange={this.handleChange(
                                                 "process"
                                             )}
+                                            style={fieldStyle}
                                         >
                                             >
                                             <option defaultValue={true} hidden>
@@ -795,7 +868,7 @@ class NoteManagement extends Component {
                             </Col>
 
                             <Col xs={12} sm={12} md={5} lg={5} xl={5}>
-                                <Form.Group className="form-group fill">
+                                <Form.Group className="form-group fill mb-0">
                                     <Form.Label
                                         className="floating-label"
                                         style={
@@ -823,6 +896,7 @@ class NoteManagement extends Component {
                                             onChange={this.handleChange(
                                                 "schedule"
                                             )}
+                                            style={fieldStyle}
                                         >
                                             <option defaultValue={true} hidden>
                                                 Cursos
@@ -863,8 +937,16 @@ class NoteManagement extends Component {
                                     )}
                                 </Form.Group>
                             </Col>
-                            <Col xs={12} sm={12} md={3} lg={3} xl={3}>
-                                <Form.Group className="form-group fill">
+                            <Col xs={12}>
+                                <div className="d-flex align-items-center" style={{ marginTop: "2px" }}>
+                                    <span style={{ color: "#79003c", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                                        Información del registro
+                                    </span>
+                                    <div style={{ background: "#e7eaf0", height: "1px", flex: 1, marginLeft: "12px" }} />
+                                </div>
+                            </Col>
+                            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                                <Form.Group className="form-group fill mb-0">
                                     <Form.Label className="floating-label">
                                         Docente{" "}
                                         <small className="text-danger">
@@ -879,11 +961,12 @@ class NoteManagement extends Component {
                                         id="teachermask"
                                         value={this.state.teacherName}
                                         disabled={true}
+                                        style={readOnlyFieldStyle}
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col xs={12} sm={12} md={3} lg={3} xl={3}>
-                                <Form.Group className="form-group fill">
+                            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                                <Form.Group className="form-group fill mb-0">
                                     <Form.Label className="floating-label">
                                         Fecha Limite de registro{" "}
                                         <small className="text-danger">
@@ -898,17 +981,19 @@ class NoteManagement extends Component {
                                         id="endDate"
                                         value={this.state.endRegistration}
                                         disabled={true}
+                                        style={readOnlyFieldStyle}
                                     />
                                 </Form.Group>
                             </Col>
 
-                            <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+                            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                                 {this.state.course && this.state.actaCode == ""
                                     ? //!component.ORGANIC_UNIT && activate &&
                                       activate && (
                                           <Button
-                                              className="pull-right"
+                                              className="w-100"
                                               variant="primary"
+                                              style={{ minHeight: "42px", marginTop: "16px", borderRadius: "7px", fontWeight: 600 }}
                                               onClick={() =>
                                                   this.createActaBook()
                                               }
@@ -926,7 +1011,7 @@ class NoteManagement extends Component {
                                                   lg={6}
                                                   xl={6}
                                               >
-                                                  <Form.Group className="form-group fill">
+                                                  <Form.Group className="form-group fill mb-0">
                                                       <Form.Label className="floating-label">
                                                           Codigo de acta{" "}
                                                           <small className="text-danger">
@@ -944,6 +1029,7 @@ class NoteManagement extends Component {
                                                                   .actaCode
                                                           }
                                                           disabled={true}
+                                                          style={readOnlyFieldStyle}
                                                       />
                                                       {!component.ORGANIC_UNIT && (
                                                           <InputGroup.Append
@@ -986,16 +1072,83 @@ class NoteManagement extends Component {
                                       )}
                             </Col>
                         </Row>
+                        </div>
                     </Card.Header>
                 </Card>
                 <div style={{ position: "relative" }}>
                     {this.state.studentLoader && component.spiner}
-                    <DataTable
-                        activate={activate}
-                        acta={this.state.acta}
-                        actaState={this.state.actaState}
-                        records={this.state.students}
-                    />
+                    {schedule && (
+                        <Row className="mb-3">
+                            <Col xs={12} md={6} className="mb-3 mb-md-0">
+                                <Card style={{ border: "1px solid #ccebd9", borderRadius: "12px", background: "linear-gradient(135deg, #f2fcf6, #e6f7ed)", boxShadow: "0 4px 14px rgba(20, 122, 66, 0.08)" }}>
+                                    <Card.Body className="py-3 px-4">
+                                        <small className="text-uppercase" style={{ color: "#147a42", fontWeight: 700, letterSpacing: "0.04em" }}>Habilitados para notas</small>
+                                        <div className="d-flex align-items-end justify-content-between mt-1">
+                                            <strong style={{ color: "#146c38", fontSize: "2rem", lineHeight: 1 }}>{eligibleStudents.length}</strong>
+                                            <span className="text-muted small">pagos al día</span>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                            <Col xs={12} md={6}>
+                                <Card style={{ border: "1px solid #f2d69a", borderRadius: "12px", background: "linear-gradient(135deg, #fffaf0, #fff3d8)", boxShadow: "0 4px 14px rgba(180, 120, 0, 0.08)" }}>
+                                    <Card.Body className="py-3 px-4">
+                                        <small className="text-uppercase" style={{ color: "#9a6700", fontWeight: 700, letterSpacing: "0.04em" }}>Bloqueados por pagos</small>
+                                        <div className="d-flex align-items-end justify-content-between mt-1">
+                                            <strong style={{ color: "#8a5a00", fontSize: "2rem", lineHeight: 1 }}>{blockedStudents.length}</strong>
+                                            <span className="text-muted small">requieren regularización</span>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+                    )}
+                    {schedule && blockedStudents.length > 0 && (
+                        <Alert
+                            variant="warning"
+                            className="mb-4"
+                            style={{
+                                border: "1px solid #f2d69a",
+                                borderLeft: "5px solid #c68a00",
+                                borderRadius: "10px",
+                                background: "#fffaf0",
+                            }}
+                        >
+                            <Alert.Heading style={{ fontSize: "1rem", fontWeight: 700 }}>
+                                Estudiantes bloqueados por pagos pendientes
+                            </Alert.Heading>
+                            Hay {blockedStudents.length} estudiante(s) sin habilitación para notas. Deben regularizar la matrícula y todas las pensiones del ciclo en <strong>Contabilidad</strong> antes de continuar.
+                        </Alert>
+                    )}
+                    {schedule && (
+                        <>
+                            <Card style={{ border: "none", borderRadius: "14px", boxShadow: "0 6px 20px rgba(31, 45, 61, 0.08)", overflow: "hidden" }}>
+                                <Card.Body className="p-0">
+                                    <DataTable
+                                        activate={activate}
+                                        acta={this.state.acta}
+                                        actaState={this.state.actaState}
+                                        records={eligibleStudents}
+                                        title="ESTUDIANTES HABILITADOS PARA REGISTRAR NOTAS"
+                                    />
+                                </Card.Body>
+                            </Card>
+                            {blockedStudents.length > 0 && (
+                                <Card className="mt-4" style={{ border: "1px solid #f2d69a", borderRadius: "14px", boxShadow: "0 6px 20px rgba(31, 45, 61, 0.08)", overflow: "hidden" }}>
+                                    <Card.Body className="p-0">
+                                        <DataTable
+                                            blocked={true}
+                                            activate={false}
+                                            acta={this.state.acta}
+                                            actaState={this.state.actaState}
+                                            records={blockedStudents}
+                                            title="ESTUDIANTES BLOQUEADOS POR PAGOS PENDIENTES"
+                                        />
+                                    </Card.Body>
+                                </Card>
+                            )}
+                        </>
+                    )}
                 </div>
             </>
         );

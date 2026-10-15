@@ -15,6 +15,7 @@ const Acta_book = require('../../models').Acta_book;
 const Registration = require('../../models').Registration;
 const Admission_plan = require('../../models').Admission_plan;
 const Registration_course = require('../../models').Registration_course;
+const Payment = require('../../models').Payment;
 const ST = Model.sequelize;
 const abox = require('../Abox');
 const moment = require('moment');
@@ -495,7 +496,34 @@ module.exports = {
 
                     }, {transaction: t});
 
+                    const registrationIds = registrationData.map(record => record.id_registration);
+                    const payments = registrationIds.length ? await Payment.findAll({
+                        attributes: ['id_registration', 'denomination', 'type'],
+                        where: {
+                            id_registration: {[Op.in]: registrationIds},
+                            denomination: {[Op.in]: ['Matrícula', 'Pensión']}
+                        },
+                        transaction: t
+                    }) : [];
+
+                    const paymentsByRegistration = payments.reduce((grouped, payment) => {
+                        const id = payment.id_registration;
+                        if (!grouped[id]) grouped[id] = [];
+                        grouped[id].push(payment);
+                        return grouped;
+                    }, {});
+
                     for (let i = 0; i < registrationData.length; i++) {
+                        const registrationPayments = paymentsByRegistration[registrationData[i].id_registration] || [];
+                        const paidRegistration = registrationPayments.some(payment =>
+                            payment.denomination === 'Matrícula' && payment.type === 'Pagado'
+                        );
+                        const pendingPayments = registrationPayments.filter(payment => payment.type !== 'Pagado');
+                        const canEnterGrade = paidRegistration && pendingPayments.length === 0;
+                        const pendingConcepts = pendingPayments.map(payment => payment.denomination);
+                        if (!paidRegistration && !pendingConcepts.includes('Matrícula')) {
+                            pendingConcepts.unshift('Matrícula');
+                        }
                         registration.push({
                             'id_registration_course': registrationData[i].id,
                             'registration_course_type': registrationData[i].type,
@@ -511,6 +539,11 @@ module.exports = {
                             "email": registrationData[i].Registration.Student.Person.email,
                             "name": registrationData[i].Registration.Student.Person.name,
                             "photo": registrationData[i].Registration.Student.Person.photo,
+                            "payment_status": {
+                                can_enter_grade: canEnterGrade,
+                                pending_count: pendingPayments.length,
+                                pending_concepts: pendingConcepts,
+                            },
                         })
                     }
 

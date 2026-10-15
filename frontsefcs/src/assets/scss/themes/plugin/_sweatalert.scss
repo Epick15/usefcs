@@ -1,3 +1,9 @@
+.swal2-container {
+    // Application modals use z-index 1072; alerts must remain actionable
+    // when they are triggered from inside a modal.
+    z-index: 1080 !important;
+}
+
 .swal-icon--error {
     border-color: theme-color("danger");
 }
