@@ -529,10 +529,11 @@ class ProgramForm extends React.Component {
 
         return (
             <Aux>
-                <Modal show={programModal} size={"xl"} backdrop="static">
-                    <Modal.Header className="bg-primary">
-                        <Modal.Title as="h5" style={{ color: "#ffffff" }}>
+                <Modal show={programModal} size={"xl"} backdrop="static" dialogClassName="management-modal">
+                    <Modal.Header className="management-modal-header">
+                        <Modal.Title as="h5">
                             {titleFormProgram} PROGRAMA
+                            <small>Completa la información académica y administrativa.</small>
                         </Modal.Title>
                         <div className="d-inline-block pull-right">
                             <OverlayTrigger
@@ -549,7 +550,7 @@ class ProgramForm extends React.Component {
                             </OverlayTrigger>
                         </div>
                     </Modal.Header>
-                    <Modal.Body>
+                    <Modal.Body className="management-modal-body">
                         <Row>
                             {!component.ORGANIC_UNIT && (
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>

@@ -139,8 +139,16 @@ class Profile extends Component {
                     fatherModuleUrl={""}
                     fatherModuleTitle={""}
                 />
-                <Card style={{ marginBottom: "5px" }}>
-                    <Card.Header>
+                <div className="management-page profile-page">
+                <Card className="management-card management-filter-card">
+                    <Card.Body>
+                        <div className="management-card-heading">
+                            <div>
+                                <h5>Buscar perfil</h5>
+                                <p>Localiza un estudiante para consultar o actualizar sus datos personales.</p>
+                            </div>
+                            <span className="management-card-badge">Perfiles</span>
+                        </div>
                         <Row>
                             <Col xs={11} sm={11} md={11} lg={11} xl={11}>
                                 <Form.Group className="form-group fill">
@@ -166,7 +174,7 @@ class Profile extends Component {
                                     <Table
                                         hover
                                         responsive
-                                        style={{ marginTop: "-1px" }}
+                                        className="management-search-results"
                                     >
                                         <tbody>
                                             {persons.length > 0 &&
@@ -250,7 +258,7 @@ class Profile extends Component {
                                 </div>
                             </Col>
                         </Row>
-                    </Card.Header>
+                    </Card.Body>
                 </Card>
 
                 {/*<div style={{position: 'relative'}}>*/}
@@ -269,6 +277,7 @@ class Profile extends Component {
                         callData={this.callData}
                     />
                 )}
+                </div>
             </>
         );
     }

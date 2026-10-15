@@ -5957,6 +5957,7 @@ const info = localStorage.getItem("INFO")
     : "";
 const ORGANIC_UNIT = info.role ? info.role.id_organic_unit : "";
 const USER_TYPE = info.mode ? "" : info.role.Role.denomination;
+const IS_GOD = Boolean(info.mode);
 
 const numberToLetter = (num) => {
     let number;
@@ -6256,6 +6257,7 @@ const pdfReportAutoTableConstancyExpeditoSustentationSeunsm = async (data) => {
 const Componet = {
     ORGANIC_UNIT,
     USER_TYPE,
+    IS_GOD,
     spin,
     spiner,
     MuiOption,

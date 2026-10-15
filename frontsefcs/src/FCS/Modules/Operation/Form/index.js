@@ -379,11 +379,13 @@ class FormOperation extends React.Component {
                 show={this.state.formOperation}
                 size={"xl"}
                 backdrop="static"
+                dialogClassName="management-modal"
             >
-                <Modal.Header className="bg-primary">
-                    <Modal.Title as="h5" style={{ color: "#ffffff" }}>
+                <Modal.Header className="management-modal-header">
+                    <Modal.Title as="h5">
                         {this.props.action === "add" ? "REGISTRAR" : "EDITAR"}{" "}
                         OPERACIÓN
+                        <small>Registra el concepto, monto y periodo de la operación.</small>
                     </Modal.Title>
                     <div className="d-inline-block pull-right">
                         <OverlayTrigger
@@ -400,7 +402,7 @@ class FormOperation extends React.Component {
                         </OverlayTrigger>
                     </div>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="management-modal-body">
                     <Row>
                         <Col xs={12} sm={12} md={8} lg={8} xl={8}>
                             <Form.Group

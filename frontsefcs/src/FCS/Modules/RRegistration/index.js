@@ -407,16 +407,22 @@ class Registration extends Component {
                 ? "badge-primary"
                 : "badge-success";
         const filterCardStyle = {
-            marginBottom: "14px",
+            marginBottom: "20px",
             border: "0",
-            borderRadius: "8px",
-            boxShadow: "0 8px 22px rgba(20, 34, 55, 0.12)",
+            borderRadius: "14px",
+            boxShadow: "0 8px 24px rgba(31, 45, 61, 0.10)",
             overflow: "visible",
         };
         const filterHeaderStyle = {
             background: "#ffffff",
             borderBottom: "0",
-            padding: "18px 20px",
+            padding: "22px 24px",
+        };
+        const filterPanelStyle = {
+            background: "#fafbfc",
+            border: "1px solid #eef0f4",
+            borderRadius: "10px",
+            padding: "18px",
         };
         const fieldWrapStyle = {
             marginBottom: "14px",
@@ -493,8 +499,38 @@ class Registration extends Component {
                     fatherModuleUrl={""}
                     fatherModuleTitle={""}
                 />
-                <Card style={filterCardStyle}>
+                <Card className="academic-filter-card" style={filterCardStyle}>
                     <Card.Header style={filterHeaderStyle}>
+                        <div className="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                            <div>
+                                <h5 className="mb-1" style={{ color: "#79003c", fontWeight: 700 }}>
+                                    Gestión de matrículas
+                                </h5>
+                                <small className="text-muted">
+                                    Busque al estudiante y gestione sus matrículas del semestre seleccionado.
+                                </small>
+                            </div>
+                            <span
+                                style={{
+                                    background: this.state.studentID ? "#e4f5ec" : "#f2f4f7",
+                                    color: this.state.studentID ? "#147a42" : "#6c757d",
+                                    borderRadius: "999px",
+                                    fontSize: "0.78rem",
+                                    fontWeight: 600,
+                                    padding: "8px 12px",
+                                    marginTop: "6px",
+                                }}
+                            >
+                                {this.state.studentID ? "Estudiante seleccionado" : "Pendiente de selección"}
+                            </span>
+                        </div>
+                        <div style={filterPanelStyle}>
+                            <div className="d-flex align-items-center mb-3">
+                                <span style={{ color: "#79003c", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                                    Selección académica
+                                </span>
+                                <div style={{ background: "#e7eaf0", height: "1px", flex: 1, marginLeft: "12px" }} />
+                            </div>
                         <Row>
                             {!component.ORGANIC_UNIT && (
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -514,6 +550,7 @@ class Registration extends Component {
                                         </Form.Label>
                                         <Form.Control
                                             as="select"
+                                            className="academic-select"
                                             value={organicUnit}
                                             style={controlStyle}
                                             onChange={this.handleChange(
@@ -574,6 +611,7 @@ class Registration extends Component {
 
                                     <Form.Control
                                         as="select"
+                                        className="academic-select"
                                         value={process}
                                         style={controlStyle}
                                         onChange={this.handleChange("process")}
@@ -993,6 +1031,7 @@ class Registration extends Component {
                                 </Col>
                             )}
                         </Row>
+                        </div>
                     </Card.Header>
                 </Card>
                 <Row>

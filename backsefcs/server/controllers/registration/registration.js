@@ -343,12 +343,17 @@ module.exports = {
 
                 //*//
                 // OBTENEMOS EL LISTADO DE TODOS LOS CURSOS SEGUN EL PLAN
+                const scheduleWhere = {
+                    id_process: req.body.id_process,
+                };
+                if (req.body.allow_schedule_choice !== "true") {
+                    scheduleWhere.type_registration =
+                        req.body.type_registration;
+                }
+
                 ciclo = await Schedule.findAll(
                     {
-                        where: {
-                            id_process: req.body.id_process,
-                            type_registration: req.body.type_registration,
-                        },
+                        where: scheduleWhere,
                         include: [
                             {
                                 attributes: ["id", "principal"],
@@ -424,6 +429,7 @@ module.exports = {
                         denomination: r.Course.denomination,
                         state: false,
                         group: r.group_class,
+                        scheduleType: r.type_registration,
                         teachers: r.Teachers.length > 0 ? r.Teachers : [],
                     })
                 );
@@ -1137,8 +1143,48 @@ module.exports = {
                     throw { message: "No ha seleccionado ningun curso" };
                 }
 
+                if (req.body.type === "Curso desaprobado por Credito") {
+                    const uniqueCourseIds = new Set(courseIds);
+                    if (uniqueCourseIds.size !== courseIds.length) {
+                        throw {
+                            message:
+                                "Seleccione una sola apertura por cada curso desaprobado.",
+                        };
+                    }
+                }
+
                 // La inscripción debe estar pagada antes de generar cualquier
                 // matrícula, incluso si la petición no proviene de la interfaz.
+                const scheduleIds = dataCourse
+                    .map((course) => course.id_schedule)
+                    .filter((id) => id !== undefined && id !== null);
+                const selectedSchedules = await Schedule.findAll({
+                    where: {
+                        id: { [Op.in]: scheduleIds },
+                        id_process: req.body.id_process,
+                    },
+                    transaction: t,
+                });
+                const scheduleById = new Map(
+                    selectedSchedules.map((schedule) => [schedule.id, schedule])
+                );
+                const hasInvalidSchedule = dataCourse.some((course) => {
+                    const schedule = scheduleById.get(course.id_schedule);
+                    return (
+                        !schedule ||
+                        Number(schedule.id_course) !== Number(course.id) ||
+                        (req.body.allow_schedule_choice !== "true" &&
+                            schedule.type_registration !==
+                                req.body.type_registration)
+                    );
+                });
+                if (hasInvalidSchedule) {
+                    throw {
+                        message:
+                            "La apertura elegida no corresponde al curso o al proceso seleccionado.",
+                    };
+                }
+
                 await requirePaidInscription(
                     {
                         idStudent: req.body.id_student,
@@ -1398,6 +1444,12 @@ module.exports = {
                                   req.body.type === "Curso dirigido Otros"
                                 ? "D"
                                 : "A";
+
+                        // La apertura elegida es la fuente de verdad del tipo
+                        // (Regular, Dirigido, etc.).
+                        typeCourse = scheduleById.get(
+                            dataCourse[i].id_schedule
+                        ).type_registration;
 
                         let registrationCourseCreate =
                             await Registration_course.create(

@@ -12,7 +12,6 @@ import {
     Card,
     Col,
     Form,
-    InputGroup,
     OverlayTrigger,
     Row,
     Tooltip,
@@ -21,6 +20,9 @@ import Select from "react-select";
 import DataTable from "./DataTable";
 import $ from "jquery";
 import GetApp from "@material-ui/icons/GetApp";
+import DeleteForever from "@material-ui/icons/DeleteForever";
+import Lock from "@material-ui/icons/Lock";
+import Swal from "sweetalert2";
 
 moment.locale("es");
 
@@ -371,7 +373,6 @@ class NoteManagement extends Component {
 
     async closeActaBook(id_acta) {
         this.setState({ loaderCloseActa: true });
-        const { concept, cant, amount, observation } = this.state;
 
         const url = app.programs + "/" + app.actaBook + "-close/" + id_acta;
         let data = new FormData();
@@ -389,6 +390,62 @@ class NoteManagement extends Component {
         } catch (err) {
             this.setState({ loaderCloseActa: false });
             PNotify.error({ title: "Oh no!", text: err.response, delay: 2000 });
+        }
+    }
+
+    confirmCloseActaBook = async () => {
+        const alert = await Swal.fire({
+            title: "¿Cerrar el acta?",
+            text:
+                "El acta quedará finalizada y ya no podrá anularse desde el sistema.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, cerrar acta",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#1b5e20",
+        });
+        if (alert.isConfirmed) this.closeActaBook(this.state.acta);
+    };
+
+    confirmDestroyActaBook = async () => {
+        const alert = await Swal.fire({
+            title: "¿Anular el acta?",
+            text:
+                "Se eliminará el acta abierta y podrá generarse nuevamente. Las calificaciones no se modificarán.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, anular acta",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#c62828",
+        });
+        if (alert.isConfirmed) this.destroyActaBook(this.state.acta);
+    };
+
+    async destroyActaBook(id_acta) {
+        this.setState({ actaBookLoader: true });
+        const url = app.programs + "/" + app.actaBook + "/" + id_acta;
+        try {
+            const res = await axios.delete(url, app.headers);
+            this.setState({
+                acta: "",
+                actaCode: "",
+                actaState: false,
+                actaBookLoader: false,
+            });
+            PNotify.success({
+                title: "Acta anulada",
+                text: res.data.message,
+                delay: 2500,
+            });
+        } catch (err) {
+            this.setState({ actaBookLoader: false });
+            PNotify.error({
+                title: "No se pudo anular el acta",
+                text:
+                    (err.response && err.response.data && err.response.data.message) ||
+                    "Ocurrió un error al anular el acta.",
+                delay: 3000,
+            });
         }
     }
 
@@ -1003,15 +1060,10 @@ class NoteManagement extends Component {
                                           </Button>
                                       )
                                     : this.state.actaCode && (
-                                          <>
-                                              <Col
-                                                  xs={12}
-                                                  sm={12}
-                                                  md={6}
-                                                  lg={6}
-                                                  xl={6}
-                                              >
-                                                  <Form.Group className="form-group fill mb-0">
+                                                  <Form.Group
+                                                      className="form-group fill mb-0"
+                                                      style={{ position: "relative" }}
+                                                  >
                                                       <Form.Label className="floating-label">
                                                           Codigo de acta{" "}
                                                           <small className="text-danger">
@@ -1029,46 +1081,146 @@ class NoteManagement extends Component {
                                                                   .actaCode
                                                           }
                                                           disabled={true}
-                                                          style={readOnlyFieldStyle}
+                                                          style={{
+                                                              ...readOnlyFieldStyle,
+                                                              paddingRight: component.IS_GOD
+                                                                  ? "120px"
+                                                                  : "48px",
+                                                          }}
                                                       />
-                                                      {!component.ORGANIC_UNIT && (
-                                                          <InputGroup.Append
+                                                      <OverlayTrigger
+                                                          placement="top"
+                                                          overlay={
+                                                              <Tooltip>
+                                                                  Descargar acta
+                                                              </Tooltip>
+                                                          }
+                                                      >
+                                                          <Button
+                                                              type="button"
+                                                              variant="light"
+                                                              aria-label="Descargar acta"
+                                                              onClick={() =>
+                                                                  this.reportActa(
+                                                                      this.state.acta
+                                                                  )
+                                                              }
                                                               style={{
-                                                                  float: "right",
-                                                                  marginTop:
-                                                                      "-33px",
-                                                                  marginRight:
-                                                                      "5px",
+                                                                  position: "absolute",
+                                                                  right: "5px",
+                                                                  bottom: "4px",
+                                                                  zIndex: 3,
+                                                                  width: "34px",
+                                                                  height: "34px",
+                                                                  padding: 0,
+                                                                  border: "none",
+                                                                  borderRadius: "6px",
+                                                                  color: "#a05a00",
+                                                                  background: "#fff3d6",
+                                                                  display: "inline-flex",
+                                                                  alignItems: "center",
+                                                                  justifyContent: "center",
                                                               }}
                                                           >
+                                                              <GetApp fontSize="small" />
+                                                          </Button>
+                                                      </OverlayTrigger>
+                                                      {component.IS_GOD &&
+                                                          !this.state.actaState && (
                                                               <OverlayTrigger
+                                                                  placement="top"
                                                                   overlay={
-                                                                      <Tooltip
-                                                                          style={{
-                                                                              zIndex: 100000000,
-                                                                          }}
-                                                                      >
-                                                                          Descargar
-                                                                          Acta
+                                                                      <Tooltip>
+                                                                          Anular acta abierta
                                                                       </Tooltip>
                                                                   }
                                                               >
-                                                                  <GetApp
-                                                                      className="text-warning"
-                                                                      onClick={() =>
-                                                                          this.reportActa(
-                                                                              this
-                                                                                  .state
-                                                                                  .acta
-                                                                          )
+                                                                  <Button
+                                                                      type="button"
+                                                                      variant="light"
+                                                                      aria-label="Anular acta"
+                                                                      onClick={
+                                                                          this
+                                                                              .confirmDestroyActaBook
                                                                       }
-                                                                  />
+                                                                      style={{
+                                                                          position:
+                                                                              "absolute",
+                                                                          right: "44px",
+                                                                          bottom: "4px",
+                                                                          zIndex: 3,
+                                                                          width: "34px",
+                                                                          height: "34px",
+                                                                          padding: 0,
+                                                                          border: "none",
+                                                                          borderRadius:
+                                                                              "6px",
+                                                                          color: "#b71c1c",
+                                                                          background:
+                                                                              "#ffebee",
+                                                                          display:
+                                                                              "inline-flex",
+                                                                          alignItems:
+                                                                              "center",
+                                                                          justifyContent:
+                                                                              "center",
+                                                                      }}
+                                                                  >
+                                                                      <DeleteForever fontSize="small" />
+                                                                  </Button>
                                                               </OverlayTrigger>
-                                                          </InputGroup.Append>
-                                                      )}
+                                                          )}
+                                                      {component.IS_GOD &&
+                                                          !this.state.actaState && (
+                                                              <OverlayTrigger
+                                                                  placement="top"
+                                                                  overlay={
+                                                                      <Tooltip>
+                                                                          Cerrar acta
+                                                                      </Tooltip>
+                                                                  }
+                                                              >
+                                                                  <Button
+                                                                      type="button"
+                                                                      variant="light"
+                                                                      aria-label="Cerrar acta"
+                                                                      onClick={
+                                                                          this
+                                                                              .confirmCloseActaBook
+                                                                      }
+                                                                      disabled={
+                                                                          this
+                                                                              .state
+                                                                              .loaderCloseActa
+                                                                      }
+                                                                      style={{
+                                                                          position:
+                                                                              "absolute",
+                                                                          right: "83px",
+                                                                          bottom: "4px",
+                                                                          zIndex: 3,
+                                                                          width: "34px",
+                                                                          height: "34px",
+                                                                          padding: 0,
+                                                                          border: "none",
+                                                                          borderRadius:
+                                                                              "6px",
+                                                                          color: "#1b5e20",
+                                                                          background:
+                                                                              "#e8f5e9",
+                                                                          display:
+                                                                              "inline-flex",
+                                                                          alignItems:
+                                                                              "center",
+                                                                          justifyContent:
+                                                                              "center",
+                                                                      }}
+                                                                  >
+                                                                      <Lock fontSize="small" />
+                                                                  </Button>
+                                                              </OverlayTrigger>
+                                                          )}
                                                   </Form.Group>
-                                              </Col>
-                                          </>
                                       )}
                             </Col>
                         </Row>
@@ -1117,7 +1269,7 @@ class NoteManagement extends Component {
                             <Alert.Heading style={{ fontSize: "1rem", fontWeight: 700 }}>
                                 Estudiantes bloqueados por pagos pendientes
                             </Alert.Heading>
-                            Hay {blockedStudents.length} estudiante(s) sin habilitación para notas. Deben regularizar la matrícula y todas las pensiones del ciclo en <strong>Contabilidad</strong> antes de continuar.
+                            Hay {blockedStudents.length} estudiante(s) sin habilitación para notas. Deben regularizar la matrícula y todas las pensiones del ciclo en <strong>Contabilidad</strong> antes de continuar. Si no regularizan el pago y figuran en el listado principal, su nota en el acta será <strong>0 (cero)</strong>, por lo que quedarán desaprobados.
                         </Alert>
                     )}
                     {schedule && (

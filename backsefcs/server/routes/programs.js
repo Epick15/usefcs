@@ -31,6 +31,7 @@ programs.post('/project-tesis/:id', verifyToken, ProjectController.updateProject
 
 programs.post('/acta-book', verifyToken, ActaBookController.createActaBook);
 programs.patch('/acta-book-close/:id_acta', verifyToken, ActaBookController.closeActaBook);
+programs.delete('/acta-book/:id_acta', verifyToken, ActaBookController.destroyActaBook);
 programs.get('/acta-book/schedule/:id_schedule', verifyToken, ActaBookController.listActaBookBySchedule);
 programs.get('/acta-book/:id_process', verifyToken, ActaBookController.listActaBook);
 

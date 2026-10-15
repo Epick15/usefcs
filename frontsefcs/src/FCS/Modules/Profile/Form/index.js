@@ -796,10 +796,9 @@ class ProfileForm extends React.Component {
             <Aux>
 
 
-                <Modal show={true} size={"xl"} backdrop="static">
-                    <Modal.Header className='bg-primary'>
-                        <Modal.Title as="h5"
-                                     style={{color: '#ffffff'}}>{this.state.action === "add" ? "REGISTRAR PERFIL" : "ACTUALIZAR PERFIL"}</Modal.Title>
+                <Modal show={true} size={"xl"} backdrop="static" dialogClassName="management-modal">
+                    <Modal.Header className='management-modal-header'>
+                        <Modal.Title as="h5">{this.state.action === "add" ? "REGISTRAR PERFIL" : "ACTUALIZAR PERFIL"}<small>Completa y actualiza la información personal del estudiante.</small></Modal.Title>
                         <div className="d-inline-block pull-right">
                             <OverlayTrigger
                                 overlay={<Tooltip style={{zIndex: 100000000}}>Cerrar</Tooltip>}>
@@ -807,7 +806,7 @@ class ProfileForm extends React.Component {
                             </OverlayTrigger>
                         </div>
                     </Modal.Header>
-                    <Modal.Body>
+                    <Modal.Body className="management-modal-body">
                         <Row>
 
                             <Col xs={12} sm={12} md={2} lg={2} xl={2}>

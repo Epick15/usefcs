@@ -10,6 +10,7 @@ import moment from "moment";
 import TitleModule from "../../TitleModule";
 import DataTable from "./DataTable";
 import ProgramForm from "./FormProgram";
+import {Card} from "react-bootstrap";
 
 
 moment.locale('es');
@@ -158,15 +159,28 @@ export default class Programs extends Component {
                     fatherModuleUrl={""} fatherModuleTitle={""}
                 />
 
-                <div style={{position: 'relative'}}>
-                    {this.state.programsLoader && component.spiner}
-                    <DataTable
-                        records={programs}
-                        openForm={this.openForm}
-                        retriveData={this.retriveData}
-                        deleteSweetProgram={this.deleteSweetProgram}
-                        openModalDocument={this.openModalDocument}
-                    />
+                <div className="management-page programs-page">
+                    <Card className="management-card management-table-card">
+                        <Card.Body>
+                            <div className="management-card-heading">
+                                <div>
+                                    <h5>Gestión de programas</h5>
+                                    <p>Consulta, registra y administra los programas de estudio.</p>
+                                </div>
+                                <span className="management-card-badge">Catálogo académico</span>
+                            </div>
+                            <div style={{position: 'relative'}}>
+                                {this.state.programsLoader && component.spiner}
+                                <DataTable
+                                    records={programs}
+                                    openForm={this.openForm}
+                                    retriveData={this.retriveData}
+                                    deleteSweetProgram={this.deleteSweetProgram}
+                                    openModalDocument={this.openModalDocument}
+                                />
+                            </div>
+                        </Card.Body>
+                    </Card>
                 </div>
 
 

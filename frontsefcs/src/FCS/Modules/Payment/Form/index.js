@@ -469,9 +469,9 @@ class FormVoucher extends React.Component {
 
         return (
             <>
-                <Modal show={this.state.form} size={"xl"} backdrop="static">
+                <Modal show={this.state.form} size={"xl"} backdrop="static" dialogClassName="management-modal">
                     <Modal.Header
-                        className="bg-primary"
+                        className="management-modal-header"
                         style={{
                             alignItems: "center",
                             padding: "18px 24px",
@@ -509,7 +509,7 @@ class FormVoucher extends React.Component {
                             </OverlayTrigger>
                         </div>
                     </Modal.Header>
-                    <Modal.Body
+                    <Modal.Body className="management-modal-body"
                         style={{
                             background: "#f7f9fc",
                             padding: "24px",
@@ -1158,9 +1158,10 @@ class FormVoucher extends React.Component {
                     show={this.state.viewVoucher}
                     size={"xl"}
                     backdrop="static"
+                    dialogClassName="management-modal"
                 >
                     <Modal.Header
-                        className="bg-primary"
+                        className="management-modal-header"
                         style={{
                             alignItems: "center",
                             padding: "18px 24px",
@@ -1195,7 +1196,7 @@ class FormVoucher extends React.Component {
                             </OverlayTrigger>
                         </div>
                     </Modal.Header>
-                    <Modal.Body
+                    <Modal.Body className="management-modal-body"
                         style={{
                             background: "#f7f9fc",
                             padding: "24px",

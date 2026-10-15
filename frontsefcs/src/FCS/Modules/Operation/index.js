@@ -227,9 +227,17 @@ class Operation extends Component {
                 actualModule={"OPERACIONES"}
                 fatherModuleUrl={""} fatherModuleTitle={""}
             />
-            <Card style={{marginBottom: "5px"}}>
+            <div className="management-page operation-page">
+            <Card className="management-card management-filter-card">
 
-                <Card.Header>
+                <Card.Body>
+                    <div className="management-card-heading">
+                        <div>
+                            <h5>Operaciones del estudiante</h5>
+                            <p>Busca al estudiante y administra sus operaciones registradas.</p>
+                        </div>
+                        <span className="management-card-badge">Gestión financiera</span>
+                    </div>
                     <Row>
                         {!component.ORGANIC_UNIT && <Col xs={12} sm={12} md={12} lg={12} xl={12}>
 
@@ -238,7 +246,7 @@ class Operation extends Component {
                                 <Form.Label className="floating-label"
 
                                 >Unidad Organica<small className="text-danger"> *</small></Form.Label>
-                                <Form.Control as="select"
+                                <Form.Control className="management-select" as="select"
                                               value={organicUnit}
                                               onChange={this.handleChange('organicUnit')}
                                 >
@@ -271,7 +279,7 @@ class Operation extends Component {
                                         placeholder="Buscar"
                                         margin="normal"
                                     />
-                                    <Table hover responsive style={{marginTop: '-1px'}}>
+                                    <Table hover responsive className="management-search-results">
                                         <tbody>
                                         {persons.length > 0 && persons.map((r, i) => {
                                             return (<tr key={i} onClick={() => this.selectectPerson(r)}>
@@ -364,20 +372,29 @@ class Operation extends Component {
 
 
                     </Row>
-                </Card.Header>
+                </Card.Body>
             </Card>
             <Row>
                 {payments.length > 0 && <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <div style={{position: 'relative'}}>
-                        {this.state.registrationDataLoader && component.spiner}
-                        <DataTableOperation
-                            records={payments}
-                            retriveDataOperation={this.retriveDataOperation}
-                            leaveDataRegistration={this.leaveDataRegistration}
-                            deleteOperationSweet={this.deleteOperationSweet}
-                        />
-                    </div>
-                    <br/>
+                    <Card className="management-card management-table-card">
+                        <Card.Body>
+                            <div className="management-card-heading">
+                                <div>
+                                    <h5>Historial de operaciones</h5>
+                                    <p>Revisa y actualiza los conceptos vinculados al estudiante seleccionado.</p>
+                                </div>
+                            </div>
+                            <div style={{position: 'relative'}}>
+                                {this.state.registrationDataLoader && component.spiner}
+                                <DataTableOperation
+                                    records={payments}
+                                    retriveDataOperation={this.retriveDataOperation}
+                                    leaveDataRegistration={this.leaveDataRegistration}
+                                    deleteOperationSweet={this.deleteOperationSweet}
+                                />
+                            </div>
+                        </Card.Body>
+                    </Card>
                 </Col>}
 
             </Row>
@@ -391,6 +408,7 @@ class Operation extends Component {
                                                     deleteOperationID={this.state.deleteOperationID}
 
             />}
+            </div>
         </>);
     }
 

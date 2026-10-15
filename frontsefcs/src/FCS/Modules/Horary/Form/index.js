@@ -695,10 +695,11 @@ class HoraryForm extends React.Component {
         };
         return (<>
                 {this.state.form && <Row className='btn-page'>
-                    <Card className="full-card" style={fullScreenStyle}>
-                        <Card.Header style={{background: '#4680ff'}}>
-                            <Card.Title as='h5' style={{color: 'white', fontSize: '20px'}}>Carga
-                                Horaria</Card.Title>
+                    <Card className="full-card horary-editor-card" style={fullScreenStyle}>
+                        <Card.Header className="horary-editor-header">
+                            <Card.Title as='h5'>Carga horaria
+                                <small>Configura el curso, grupo, fechas, docente y sesiones.</small>
+                            </Card.Title>
                             <div className="d-inline-block pull-right">
 
                                 <div className="card-header-right">
@@ -721,7 +722,7 @@ class HoraryForm extends React.Component {
 
                             </div>
                         </Card.Header>
-                        <Card.Body style={scrollable}>
+                        <Card.Body className="horary-editor-body" style={scrollable}>
                             <Row>
                                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                                     <Row>

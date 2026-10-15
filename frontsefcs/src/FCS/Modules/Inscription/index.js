@@ -8,7 +8,7 @@ import TitleModule from "../../TitleModule";
 import $ from "jquery";
 import DataTable from "./DataTable";
 import StudentForm from "./Form";
-import { Card, Col, Form, Row } from "react-bootstrap";
+import { Badge, Card, Col, Form, Row } from "react-bootstrap";
 import Select from "react-select";
 
 // MPT
@@ -349,6 +349,31 @@ class Inscription extends Component {
         // estado del modo dios
         const { organicUnits, organicUnit, programs } = this.state;
         const { studyPlanMask } = this.state;
+        const filterCardStyle = {
+            marginBottom: "20px",
+            border: "none",
+            borderRadius: "14px",
+            boxShadow: "0 8px 24px rgba(31, 45, 61, 0.10)",
+            overflow: "visible",
+        };
+        const filterHeaderStyle = {
+            background: "#ffffff",
+            border: "none",
+            padding: "22px 24px",
+        };
+        const filterPanelStyle = {
+            background: "#fafbfc",
+            border: "1px solid #eef0f4",
+            borderRadius: "10px",
+            padding: "18px",
+        };
+        const dividerLabelStyle = {
+            color: "#79003c",
+            fontSize: "0.78rem",
+            fontWeight: 700,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+        };
         return (
             <>
                 <TitleModule
@@ -357,8 +382,36 @@ class Inscription extends Component {
                     fatherModuleUrl={""}
                     fatherModuleTitle={""}
                 />
-                <Card style={{ marginBottom: "5px" }}>
-                    <Card.Header>
+                <Card className="academic-filter-card" style={filterCardStyle}>
+                    <Card.Header style={filterHeaderStyle}>
+                        <div className="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                            <div>
+                                <h5 className="mb-1" style={{ color: "#79003c", fontWeight: 700 }}>
+                                    Registro de inscripciones
+                                </h5>
+                                <small className="text-muted">
+                                    Seleccione el programa y el plan de admisión para administrar a los estudiantes inscritos.
+                                </small>
+                            </div>
+                            <Badge
+                                pill
+                                style={{
+                                    background: admissionPlan ? "#e4f5ec" : "#f2f4f7",
+                                    color: admissionPlan ? "#147a42" : "#6c757d",
+                                    fontSize: "0.78rem",
+                                    fontWeight: 600,
+                                    padding: "8px 12px",
+                                    marginTop: "6px",
+                                }}
+                            >
+                                {admissionPlan ? "Plan seleccionado" : "Pendiente de selección"}
+                            </Badge>
+                        </div>
+                        <div style={filterPanelStyle}>
+                            <div className="d-flex align-items-center mb-3">
+                                <span style={dividerLabelStyle}>Selección académica</span>
+                                <div style={{ background: "#e7eaf0", height: "1px", flex: 1, marginLeft: "12px" }} />
+                            </div>
                         <Row>
                             {!component.ORGANIC_UNIT && (
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -386,7 +439,7 @@ class Inscription extends Component {
                                             value={organicUnit}
                                             name="organicUnit"
                                             options={organicUnits}
-                                            classNamePrefix="select"
+                                            classNamePrefix="academic-select-react"
                                             // isLoading={coursesLoader}
                                             className="basic-single"
                                             placeholder="Buscar unidad orgánica"
@@ -437,6 +490,7 @@ class Inscription extends Component {
                                     </Form.Label>
                                     <Form.Control
                                         as="select"
+                                        className="academic-select"
                                         value={program}
                                         style={{
                                             paddingLeft: "8px",
@@ -503,6 +557,7 @@ class Inscription extends Component {
                                     ) : (
                                         <Form.Control
                                             as="select"
+                                            className="academic-select"
                                             value={admissionPlan}
                                             style={{
                                                 paddingLeft: "8px",
@@ -562,6 +617,7 @@ class Inscription extends Component {
 
                                     <Form.Control
                                         type="text"
+                                        className="academic-select academic-select--readonly"
                                         placeholder="Plan de estudio"
                                         id="studyPlanMask"
                                         value={studyPlanMask}
@@ -570,6 +626,7 @@ class Inscription extends Component {
                                 </Form.Group>
                             </Col>
                         </Row>
+                        </div>
                     </Card.Header>
                 </Card>
                 <div style={{ position: "relative" }}>

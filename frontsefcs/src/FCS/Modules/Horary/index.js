@@ -98,10 +98,17 @@ class Horary extends Component {
                     actualModule={"HORARIOS"}
                     fatherModuleUrl={""} fatherModuleTitle={""}
                 />
+                <div className="management-page horary-page">
                 {!component.ORGANIC_UNIT &&
-                    <Card style={{marginBottom: "5px"}}>
+                    <Card className="management-card management-filter-card">
 
-                        <Card.Header style={{paddingBottom: '0px'}}>
+                        <Card.Body>
+                            <div className="management-card-heading">
+                                <div>
+                                    <h5>Selección académica</h5>
+                                    <p>Elige la unidad orgánica para gestionar sus horarios.</p>
+                                </div>
+                            </div>
                             <Row>
 
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -111,7 +118,7 @@ class Horary extends Component {
                                         <Form.Label className="floating-label"
 
                                         >Unidad Organica<small className="text-danger"> *</small></Form.Label>
-                                        <Form.Control as="select"
+                                        <Form.Control className="management-select" as="select"
                                                       value={organicUnit}
                                                       onChange={this.handleChange('organicUnit')}
                                         >
@@ -133,24 +140,35 @@ class Horary extends Component {
                                         </Form.Control>
                                     </Form.Group>
 
-                                    <br/>
                                 </Col>
 
 
                             </Row>
-                        </Card.Header>
+                        </Card.Body>
                     </Card>}
-                <div style={{position: 'relative'}}>
-                    {this.state.horaryLoader && component.spiner}
+                <Card className="management-card management-table-card">
+                    <Card.Body>
+                        <div className="management-card-heading">
+                            <div>
+                                <h5>Horarios programados</h5>
+                                <p>Configura cursos, grupos, docentes y fechas del periodo académico.</p>
+                            </div>
+                            <span className="management-card-badge">Planificación</span>
+                        </div>
+                        <div style={{position: 'relative'}}>
+                            {this.state.horaryLoader && component.spiner}
 
-                    <DataTable
-                        records={[]}
-                        organicUnit={this.state.organicUnit}
-                        retriveStudent={this.retriveStudent}
-                        deleteStudentsweet={this.deleteStudentsweet}
-                        ref={(ref) => this.DataTableData = ref}
-                    />
+                            <DataTable
+                                records={[]}
+                                organicUnit={this.state.organicUnit}
+                                retriveStudent={this.retriveStudent}
+                                deleteStudentsweet={this.deleteStudentsweet}
+                                ref={(ref) => this.DataTableData = ref}
+                            />
 
+                        </div>
+                    </Card.Body>
+                </Card>
                 </div>
 
 

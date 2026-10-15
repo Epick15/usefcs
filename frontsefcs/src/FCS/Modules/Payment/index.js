@@ -389,8 +389,16 @@ class Payment extends Component {
                     fatherModuleUrl={""}
                     fatherModuleTitle={""}
                 />
-                <Card style={{ marginBottom: "12px" }}>
-                    <Card.Header style={{ padding: "18px 20px" }}>
+                <div className="management-page payment-page">
+                <Card className="management-card management-filter-card">
+                    <Card.Body>
+                        <div className="management-card-heading">
+                            <div>
+                                <h5>Selección de estudiante</h5>
+                                <p>Busca al estudiante para revisar pagos, saldos y comprobantes.</p>
+                            </div>
+                            <span className="management-card-badge">Ingresos</span>
+                        </div>
                         <Row>
                             {!component.ORGANIC_UNIT && (
                                 <Col xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -413,7 +421,7 @@ class Payment extends Component {
                                                 *
                                             </small>
                                         </Form.Label>
-                                        <Form.Control
+                                        <Form.Control className="management-select"
                                             as="select"
                                             value={organicUnit}
                                             style={{
@@ -506,7 +514,7 @@ class Payment extends Component {
                                         <Table
                                             hover
                                             responsive
-                                            style={{ marginTop: "-1px" }}
+                                            className="management-search-results"
                                         >
                                             <tbody>
                                                 {persons.length > 0 &&
@@ -746,13 +754,13 @@ class Payment extends Component {
                                 )}
                             </Col>
                         </Row>
-                    </Card.Header>
+                    </Card.Body>
                 </Card>
 
                 {this.state.searchPerson === false ? (
                     <Row style={{ rowGap: "16px" }}>
                         <Col xs={12} sm={12} md={12} lg={5} xl={5}>
-                            <div style={{ position: "relative" }}>
+                            <Card className="management-card management-table-card h-100"><Card.Body><div style={{ position: "relative" }}>
                                 {this.state.movementLoader && component.spiner}
                                 <DataTableVoucher
                                     openForm={this.openForm}
@@ -763,10 +771,10 @@ class Payment extends Component {
                                     retriveMovement={this.retriveMovement}
                                     studentID={this.state.studentID}
                                 />
-                            </div>
+                            </div></Card.Body></Card>
                         </Col>
                         <Col xs={12} sm={12} md={12} lg={7} xl={7}>
-                            <div style={{ position: "relative" }}>
+                            <Card className="management-card management-table-card h-100"><Card.Body><div style={{ position: "relative" }}>
                                 {this.state.conceptLoader && component.spiner}
                                 <DataTableAmortization
                                     callConceptStudent={this.callConceptStudent}
@@ -776,16 +784,16 @@ class Payment extends Component {
                                     records={this.state.payments}
                                     totalBalance={this.state.totalBalance}
                                 />
-                            </div>
+                            </div></Card.Body></Card>
                         </Col>
                     </Row>
                 ) : (
-                    <div style={{ position: "relative" }}>
+                    <Card className="management-card management-table-card"><Card.Body><div style={{ position: "relative" }}>
                         {this.state.paymentRegistrateLoader && component.spiner}
                         <DataTablePaymentRegistrate
                             records={this.state.movementPendients}
                         />
-                    </div>
+                    </div></Card.Body></Card>
                 )}
                 <FormVoucher
                     form={this.state.form}
@@ -797,6 +805,7 @@ class Payment extends Component {
                     retriveMovement={this.state.retriveMovement}
                     deleteMovementID={this.state.deleteMovementID}
                 />
+                </div>
             </>
         );
     }

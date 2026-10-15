@@ -15,6 +15,7 @@ const Schedule = require("../../models").Schedule;
 const Admission_plan = require("../../models").Admission_plan;
 const Teacher = require("../../models").Teacher;
 const Plan = require("../../models").Plan;
+const User = require("../../models").User;
 
 const ST = Model.sequelize;
 module.exports = {
@@ -122,15 +123,69 @@ module.exports = {
     closeActaBook: async (req, res) => {
         try {
             await ST.transaction(async (t) => {
-                let data = await Model.findByPk(req.params.id_acta);
+                const user = await User.findByPk(req.userId, {
+                    attributes: ["id", "god"],
+                    transaction: t,
+                });
+                if (!user || !user.god) {
+                    throw { message: "No tiene permiso para cerrar un acta." };
+                }
+
+                const data = await Model.findByPk(req.params.id_acta, {
+                    transaction: t,
+                });
+                if (!data) {
+                    throw { message: "No se encontró el acta." };
+                }
+                if (data.state) {
+                    throw { message: "El acta ya se encuentra cerrada." };
+                }
                 await data.update({ state: true }, { transaction: t });
             });
 
-            res.status(200).send({ message: message.UPDATED_OK });
+            res.status(200).send({ message: "Acta cerrada correctamente." });
         } catch (err) {
             console.log(err);
-            res.status(445).send({
-                message: message.ERROR_TRANSACTION,
+            res.status(403).send({
+                message: err.message || message.ERROR_TRANSACTION,
+                error: err,
+            });
+        }
+    },
+    destroyActaBook: async (req, res) => {
+        try {
+            await ST.transaction(async (t) => {
+                // Anular un acta permite volver a generarla, por lo que es una
+                // operación reservada exclusivamente al administrador total.
+                const user = await User.findByPk(req.userId, {
+                    attributes: ["id", "god"],
+                    transaction: t,
+                });
+                if (!user || !user.god) {
+                    throw { message: "No tiene permiso para anular un acta." };
+                }
+
+                const acta = await Model.findByPk(req.params.id_acta, {
+                    transaction: t,
+                });
+                if (!acta) {
+                    throw { message: "No se encontró el acta." };
+                }
+                if (acta.state) {
+                    throw {
+                        message:
+                            "No se puede anular un acta cerrada o finalizada.",
+                    };
+                }
+
+                await acta.destroy({ transaction: t });
+            });
+
+            res.status(200).send({ message: "Acta anulada correctamente." });
+        } catch (err) {
+            console.log(err);
+            res.status(403).send({
+                message: err.message || message.ERROR_TRANSACTION,
                 error: err,
             });
         }

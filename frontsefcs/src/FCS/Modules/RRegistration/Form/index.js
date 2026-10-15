@@ -243,6 +243,12 @@ class FormAcademicRecord extends React.Component {
             data.set("id_student", id_student);
             data.set("id_process", id_process);
             data.set("type_registration", type);
+            data.set(
+                "allow_schedule_choice",
+                typeRegistration === "Curso desaprobado por Credito"
+                    ? "true"
+                    : "false"
+            );
             const res = await axios.patch(url, data, app.headers);
             if (res.data) this.setState({ courses: res.data });
             this.setState({ studentLoader: false });
@@ -306,6 +312,12 @@ class FormAcademicRecord extends React.Component {
                 data.set("type", typeRegistration);
                 data.set("id_student", studentID);
                 data.set("id_admission_plan", admissionPlanID);
+                data.set(
+                    "allow_schedule_choice",
+                    typeRegistration === "Curso desaprobado por Credito"
+                        ? "true"
+                        : "false"
+                );
 
                 data.set("id_organic_unit", organicUnit);
                 data.set("id_program", programID);
@@ -612,6 +624,20 @@ class FormAcademicRecord extends React.Component {
     checkCourse = (i, state) => {
         let courses = this.state.courses;
         courses[i].state = !state;
+
+        // Un curso desaprobado puede tener más de una apertura disponible.
+        // Se debe elegir un solo horario para ese mismo curso.
+        if (
+            courses[i].state &&
+            this.state.typeRegistration === "Curso desaprobado por Credito"
+        ) {
+            courses.forEach((course, index) => {
+                if (index !== i && course.id === courses[i].id) {
+                    course.state = false;
+                    course.note = 0;
+                }
+            });
+        }
 
         if (courses[i].state === false) {
             courses[i].note = 0;
@@ -1085,6 +1111,12 @@ class FormAcademicRecord extends React.Component {
                                                                                             {
                                                                                                 k.group
                                                                                             }
+                                                                                        </strong>{" "}
+                                                                                        / Apertura:{" "}
+                                                                                        <strong>
+                                                                                            {k.scheduleType === "D"
+                                                                                                ? "Dirigido"
+                                                                                                : "Regular"}
                                                                                         </strong>{" "}
                                                                                         <br />
                                                                                     </p>
