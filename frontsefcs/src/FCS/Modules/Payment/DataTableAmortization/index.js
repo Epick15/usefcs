@@ -251,13 +251,16 @@ class DataTable extends Component {
 
     render() {
         const { records } = this.state;
-        let total = 0;
-        let pendient = 0;
+        let paidTotal = 0;
+        let pendingTotal = 0;
+        let exemptedTotal = 0;
         records.map((r) => {
             if (r.type === "Pagado" || r.type === "Regularizado") {
-                total = parseFloat(r.amount) + total;
-            } else {
-                pendient = parseFloat(r.amount) + pendient;
+                paidTotal = parseFloat(r.amount) + paidTotal;
+            } else if (r.type === "Exonerado") {
+                exemptedTotal = parseFloat(r.amount) + exemptedTotal;
+            } else if (r.type === "Pendiente" || r.type === "Registrado") {
+                pendingTotal = parseFloat(r.amount) + pendingTotal;
             }
         });
 
@@ -475,12 +478,17 @@ class DataTable extends Component {
                         >
                             {this.renderSummaryBadge(
                                 "Pagados",
-                                total,
+                                paidTotal,
                                 this.getStateStyle("Pagado")
                             )}
                             {this.renderSummaryBadge(
-                                "Pendientes",
-                                pendient,
+                                "Exonerados",
+                                exemptedTotal,
+                                this.getStateStyle("Exonerado")
+                            )}
+                            {this.renderSummaryBadge(
+                                "Pendientes reales",
+                                pendingTotal,
                                 this.getStateStyle("Pendiente")
                             )}
                         </div>

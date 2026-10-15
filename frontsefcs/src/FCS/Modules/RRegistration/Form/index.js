@@ -245,6 +245,7 @@ class FormAcademicRecord extends React.Component {
             data.set("type_registration", type);
             data.set(
                 "allow_schedule_choice",
+                typeRegistration === "Regular" ||
                 typeRegistration === "Curso desaprobado por Credito"
                     ? "true"
                     : "false"
@@ -269,6 +270,23 @@ class FormAcademicRecord extends React.Component {
         const { studentID, admissionPlanID, programID, organicUnit } =
             this.props;
         let tempCourse = [];
+        let registrationScheduleType = "";
+        if (
+            typeRegistration === "Regular" ||
+            typeRegistration === "ExtemporÃ¡nea" ||
+            typeRegistration === "Curso desaprobado por Credito"
+        ) {
+            registrationScheduleType = "R";
+        } else if (
+            typeRegistration === "Curso dirigido Tesis" ||
+            typeRegistration === "Curso dirigido Otros"
+        ) {
+            registrationScheduleType = "D";
+        } else if (typeRegistration === "Convalidado UNSM") {
+            registrationScheduleType = "C";
+        } else if (typeRegistration === "Convalidado Externo") {
+            registrationScheduleType = "CC";
+        }
         // maping only id and note
 
         this.state.courses.map((r) => {
@@ -310,10 +328,12 @@ class FormAcademicRecord extends React.Component {
                 data.set("selected_date", selected_date);
                 data.set("id_process", process);
                 data.set("type", typeRegistration);
+                data.set("type_registration", registrationScheduleType);
                 data.set("id_student", studentID);
                 data.set("id_admission_plan", admissionPlanID);
                 data.set(
                     "allow_schedule_choice",
+                    typeRegistration === "Regular" ||
                     typeRegistration === "Curso desaprobado por Credito"
                         ? "true"
                         : "false"
@@ -626,10 +646,11 @@ class FormAcademicRecord extends React.Component {
         courses[i].state = !state;
 
         // Un curso desaprobado puede tener más de una apertura disponible.
-        // Se debe elegir un solo horario para ese mismo curso.
+        // Se debe elegir una sola apertura para ese mismo curso.
         if (
             courses[i].state &&
-            this.state.typeRegistration === "Curso desaprobado por Credito"
+            (this.state.typeRegistration === "Regular" ||
+                this.state.typeRegistration === "Curso desaprobado por Credito")
         ) {
             courses.forEach((course, index) => {
                 if (index !== i && course.id === courses[i].id) {
