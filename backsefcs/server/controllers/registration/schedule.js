@@ -513,12 +513,16 @@ module.exports = {
                         return grouped;
                     }, {});
 
+                    const validPaymentTypes = ['Pagado', 'Exonerado'];
                     for (let i = 0; i < registrationData.length; i++) {
                         const registrationPayments = paymentsByRegistration[registrationData[i].id_registration] || [];
                         const paidRegistration = registrationPayments.some(payment =>
-                            payment.denomination === 'Matrícula' && payment.type === 'Pagado'
+                            payment.denomination === 'Matrícula' &&
+                            validPaymentTypes.includes(payment.type)
                         );
-                        const pendingPayments = registrationPayments.filter(payment => payment.type !== 'Pagado');
+                        const pendingPayments = registrationPayments.filter(payment =>
+                            !validPaymentTypes.includes(payment.type)
+                        );
                         const canEnterGrade = paidRegistration && pendingPayments.length === 0;
                         const pendingConcepts = pendingPayments.map(payment => payment.denomination);
                         if (!paidRegistration && !pendingConcepts.includes('Matrícula')) {
@@ -549,7 +553,6 @@ module.exports = {
 
                 }
             );
-
 
             data = {
                 'end_date': schedule.end_date ? schedule.end_date : 'No Def.',

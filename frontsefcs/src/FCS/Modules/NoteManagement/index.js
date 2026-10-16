@@ -680,6 +680,14 @@ class NoteManagement extends Component {
         const blockedStudents = this.state.students.filter(student =>
             !student.payment_status || !student.payment_status.can_enter_grade
         );
+        const duplicateStudents = Object.values(
+            this.state.students.reduce((groups, student) => {
+                const key = student.id_student;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(student);
+                return groups;
+            }, {})
+        ).filter((students) => students.length > 1);
         const fieldStyle = {
             minHeight: "42px",
             borderColor: "#d9dee7",
@@ -1270,6 +1278,25 @@ class NoteManagement extends Component {
                                 Estudiantes bloqueados por pagos pendientes
                             </Alert.Heading>
                             Hay {blockedStudents.length} estudiante(s) sin habilitación para notas. Deben regularizar la matrícula y todas las pensiones del ciclo en <strong>Contabilidad</strong> antes de continuar. Si no regularizan el pago y figuran en el listado principal, su nota en el acta será <strong>0 (cero)</strong>, por lo que quedarán desaprobados.
+                        </Alert>
+                    )}
+                    {schedule && duplicateStudents.length > 0 && (
+                        <Alert variant="info" className="mb-4">
+                            <Alert.Heading style={{ fontSize: "1rem", fontWeight: 700 }}>
+                                Estudiantes con más de un registro en esta apertura
+                            </Alert.Heading>
+                            <p className="mb-2">
+                                Las filas se muestran por separado para revisión: existe más de una matrícula del mismo estudiante para este curso y período.
+                            </p>
+                            {duplicateStudents.map((students) => {
+                                const student = students[0];
+                                const details = students.map((record) =>
+                                    `Matrícula ${record.id_registration} (${record.registration_type}): nota ${record.registration_course_note} - ${record.payment_status && record.payment_status.can_enter_grade ? "habilitado" : "bloqueado"}`
+                                ).join("; ");
+                                return <div key={student.id_student}>
+                                    <strong>{student.name}</strong>: {details}.
+                                </div>;
+                            })}
                         </Alert>
                     )}
                     {schedule && (

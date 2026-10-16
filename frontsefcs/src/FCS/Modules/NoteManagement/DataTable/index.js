@@ -189,6 +189,20 @@ class Index extends Component {
                     },
                 }
             },
+            {
+                name: "MATRÍCULA",
+                options: {
+                    filter: false,
+                    sort: false,
+                }
+            },
+            {
+                name: "TIPO DE MATRÍCULA",
+                options: {
+                    filter: false,
+                    sort: false,
+                }
+            },
 
 
             {
@@ -269,6 +283,8 @@ class Index extends Component {
                             index + 1,
                             r.name,
                             r.document_number,
+                            r.id_registration,
+                            r.registration_type,
                             r.registration_course_note_letter,
                             r,
                             r.payment_status && r.payment_status.pending_concepts.length > 0

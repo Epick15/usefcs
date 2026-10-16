@@ -77,6 +77,7 @@ const requirePaidInscription = async ({ idStudent, idProgram }, transaction) => 
 };
 
 const requirePaidRegistrationPayments = async (idRegistration, transaction) => {
+    const validPaymentTypes = ["Pagado", "Exonerado"];
     const payments = await Payment.findAll({
         where: {
             id_registration: idRegistration,
@@ -85,9 +86,12 @@ const requirePaidRegistrationPayments = async (idRegistration, transaction) => {
         transaction,
     });
     const paidRegistration = payments.some(payment =>
-        payment.denomination === 'Matrícula' && payment.type === 'Pagado'
+        payment.denomination === 'Matrícula' &&
+        validPaymentTypes.includes(payment.type)
     );
-    const pendingPayments = payments.filter(payment => payment.type !== 'Pagado');
+    const pendingPayments = payments.filter(payment =>
+        !validPaymentTypes.includes(payment.type)
+    );
 
     if (!paidRegistration || pendingPayments.length > 0) {
         throw {
@@ -1143,12 +1147,15 @@ module.exports = {
                     throw { message: "No ha seleccionado ningun curso" };
                 }
 
-                if (req.body.type === "Curso desaprobado por Credito") {
+                if (
+                    req.body.type === "Regular" ||
+                    req.body.type === "Curso desaprobado por Credito"
+                ) {
                     const uniqueCourseIds = new Set(courseIds);
                     if (uniqueCourseIds.size !== courseIds.length) {
                         throw {
                             message:
-                                "Seleccione una sola apertura por cada curso desaprobado.",
+                                "Seleccione una sola apertura por cada curso.",
                         };
                     }
                 }
@@ -1168,12 +1175,15 @@ module.exports = {
                 const scheduleById = new Map(
                     selectedSchedules.map((schedule) => [schedule.id, schedule])
                 );
+                const allowsScheduleChoice =
+                    req.body.type === "Regular" ||
+                    req.body.type === "Curso desaprobado por Credito";
                 const hasInvalidSchedule = dataCourse.some((course) => {
                     const schedule = scheduleById.get(course.id_schedule);
                     return (
                         !schedule ||
                         Number(schedule.id_course) !== Number(course.id) ||
-                        (req.body.allow_schedule_choice !== "true" &&
+                        (!allowsScheduleChoice &&
                             schedule.type_registration !==
                                 req.body.type_registration)
                     );

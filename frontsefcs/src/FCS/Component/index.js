@@ -4445,6 +4445,32 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
 
     let academicSemester = "-";
 
+    // Los indicadores del pie son globales para todo el récord. Se calculan
+    // antes de crear las páginas para que no cambien según la hoja impresa.
+    registration.forEach((reg) => {
+        reg.Registration_course.forEach((regCourse) => {
+            const note = Number(regCourse.note);
+            const credits = Number(regCourse.credits);
+            const hasNote =
+                regCourse.note !== null &&
+                regCourse.note !== "" &&
+                Number.isFinite(note);
+            const hasCredits = Number.isFinite(credits);
+
+            if (!hasNote) return;
+
+            totalCourse += 1;
+            generalPromedi += note;
+            if (hasCredits) totalCredit += credits;
+
+            if (note >= 14) {
+                totalAprovedCourse += 1;
+                aprovedPromedi += note;
+                if (hasCredits) totalAprovedCredit += credits;
+            }
+        });
+    });
+
     const addHeader = () => {
         pdf.addImage(imgUnsm, "PNG", 10, 10, 24, 24);
         pdf.setFontSize(16);
@@ -4517,28 +4543,6 @@ const pdfReportAutoTableRercordAcademic = async (data) => {
             reg.Registration_course.forEach((regCourse) => {
                 let typeCourse =
                     regCourse.type_course === "Obligatorio" ? "O" : "E";
-                const note = Number(regCourse.note);
-                const credits = Number(regCourse.credits);
-                const hasNote =
-                    regCourse.note !== null &&
-                    regCourse.note !== "" &&
-                    Number.isFinite(note);
-                const hasCredits = Number.isFinite(credits);
-
-                // El resumen debe usar las notas que se muestran en el récord.
-                // Antes dependía de actaExists, por lo que podía dividir entre
-                // cero aun cuando el documento mostraba cursos calificados.
-                if (hasNote) {
-                    totalCourse += 1;
-                    generalPromedi += note;
-                    if (hasCredits) totalCredit += credits;
-
-                    if (note >= 14) {
-                        totalAprovedCourse += 1;
-                        aprovedPromedi += note;
-                        if (hasCredits) totalAprovedCredit += credits;
-                    }
-                }
                 let noteText = numberToLetter(parseInt(regCourse.note));
                 tempBody.push([
                     regCourse.code,

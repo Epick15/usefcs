@@ -3141,7 +3141,22 @@ module.exports = {
                     },
                 ],
                 order: [
-                    ["created_at", "asc"],
+                    // El récord debe seguir el orden académico, no la fecha en
+                    // que se creó una matrícula. Ej.: 2022-II antes de 2023-I.
+                    [
+                        { model: Academic_semester, as: "Academic_semester" },
+                        {
+                            model: Academic_calendar,
+                            as: "Academic_calendar",
+                        },
+                        "denomination",
+                        "asc",
+                    ],
+                    [
+                        { model: Academic_semester, as: "Academic_semester" },
+                        "id_semester",
+                        "asc",
+                    ],
                     [
                         {
                             model: Registration_course,
