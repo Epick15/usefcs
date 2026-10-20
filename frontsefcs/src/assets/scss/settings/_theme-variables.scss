@@ -54,8 +54,8 @@ $header-light-background: #fff;
 $header-light-text-color: #101b33;
 
 // Menu
-$menu-dark-background: #101b33;
-$menu-dark-text-color: #97a7c1;
+$menu-dark-background: #56002b;
+$menu-dark-text-color: #f1c8dc;
 
 $menu-light-background: #fff;
 $menu-light-text-color: #535763;
@@ -73,7 +73,7 @@ $color-header-name: blue, red, purple, info, green, dark;
 $color-header-color: $primary-color, $danger-color, $purple-color, $info-color, $success-color, #101b33;
 // Header gradient
 $color-header-grd-name: grd-blue, grd-red, grd-purple, grd-info, grd-green, grd-dark;
-$color-header-grd-color: linear-gradient(to right, $primary-color 0%, #00f2fe 100%),
+$color-header-grd-color: linear-gradient(to right, #56002b 0%, #56002b 55%, #1f8f6d 100%),
 linear-gradient(to right, $danger-color 0%, #ff9a44 100%),
 linear-gradient(to right, $purple-color 0%, #00adff 100%),
 linear-gradient(to right, $info-color 0%, #22e1ff 100%),

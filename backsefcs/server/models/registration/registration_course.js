@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         id_registration: {allowNull: false, type: DataTypes.INTEGER},
         id_schedule: {allowNull: true, type: DataTypes.INTEGER},
         type_course: {allowNull: false, type: DataTypes.STRING},//R = REGULAR // D=DIRIGIDO // C=CONVALIDADO
+        grade_payment_override: {allowNull: false, type: DataTypes.BOOLEAN, defaultValue: false},
         note: {allowNull: true, type: DataTypes.SMALLINT, defaultValue: 0},
         state: {
             allowNull: false,

@@ -243,13 +243,13 @@ export default class FinancierDashboard extends Component {
         const {startDate, endDate} = this.state;
         return (<Aux>
 
-            <Row>
+            <Row className="dashboard-statistics">
                 <Col xl={6} md={12}>
-                    <Card className="bg-linkedin order-card">
+                    <Card className="order-card dashboard-stat-card dashboard-stat-card--income">
                         <Card.Body>
-                            <h6 className="text-white">TOTAL INGRESOS BRUTO</h6>
-                            <h2 className="text-white"> S/. {this.state.totalBrutalEntry}</h2>
-                            <p className="m-b-0">Segun fechas seleccionadas </p>
+                            <h6>Total de ingresos brutos</h6>
+                            <h2>S/. {this.state.totalBrutalEntry}</h2>
+                            <p className="m-b-0">Según las fechas seleccionadas</p>
                             {/*<i className="card-icon feather icon-users"/>*/}
                             <i className="card-icon fas fa-coins f-36 "/>
 
@@ -257,10 +257,10 @@ export default class FinancierDashboard extends Component {
                     </Card>
                 </Col>
                 <Col xl={6} md={12}>
-                    <Card className="order-card" style={{background: '#ff4560'}}>
+                    <Card className="order-card dashboard-stat-card dashboard-stat-card--pending">
                         <Card.Body>
-                            <h6 className="text-white">TOTAL PAGOS PENDIENTES</h6>
-                            <h2 className="text-white"> S/. {this.state.totalStudentPaymentPendient}</h2>
+                            <h6>Total de pagos pendientes</h6>
+                            <h2>S/. {this.state.totalStudentPaymentPendient}</h2>
                             <p className="m-b-0">Desde el 2000 - 1 hasta hoy</p>
                             {/*<i className="card-icon feather icon-users"/>*/}
                             <i className="card-icon fas fa-coins f-36 "/>
@@ -269,9 +269,9 @@ export default class FinancierDashboard extends Component {
                     </Card>
                 </Col>
             </Row>
-            <Row>
+            <Row className="dashboard-charts">
                 <Col xl={12}>
-                    <Card>
+                    <Card className="dashboard-chart-card">
                         <Card.Body>
                             <Row>
                                 <Col xs={12} sm={12} md={6} lg={6} xl={6}>

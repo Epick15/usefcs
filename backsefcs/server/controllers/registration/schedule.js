@@ -523,7 +523,8 @@ module.exports = {
                         const pendingPayments = registrationPayments.filter(payment =>
                             !validPaymentTypes.includes(payment.type)
                         );
-                        const canEnterGrade = paidRegistration && pendingPayments.length === 0;
+                        const gradePaymentOverride = registrationData[i].grade_payment_override === true;
+                        const canEnterGrade = paidRegistration && (pendingPayments.length === 0 || gradePaymentOverride);
                         const pendingConcepts = pendingPayments.map(payment => payment.denomination);
                         if (!paidRegistration && !pendingConcepts.includes('Matrícula')) {
                             pendingConcepts.unshift('Matrícula');
@@ -545,6 +546,8 @@ module.exports = {
                             "photo": registrationData[i].Registration.Student.Person.photo,
                             "payment_status": {
                                 can_enter_grade: canEnterGrade,
+                                has_paid_registration: paidRegistration,
+                                grade_payment_override: gradePaymentOverride,
                                 pending_count: pendingPayments.length,
                                 pending_concepts: pendingConcepts,
                             },

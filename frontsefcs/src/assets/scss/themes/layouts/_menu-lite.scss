@@ -892,10 +892,11 @@
 
             &.pcoded-menu-caption {
                 font-size: 13px;
-                font-weight: 600;
-                color: $primary-color;
+                font-weight: 700;
+                color: #f3a9cc;
                 padding: 18px 15px 5px;
                 text-transform: capitalize;
+                letter-spacing: .035em;
                 position: relative;
                 margin-top: 10px;
 
@@ -1246,7 +1247,9 @@
     }
 
     .pcoded-menu-caption {
-        color: #8090a5;
+        color: #f3a9cc;
+        font-weight: 700;
+        letter-spacing: .035em;
     }
 
     .pcoded-inner-navbar {

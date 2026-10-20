@@ -44,6 +44,7 @@ registration.get('/registration/:id_course/requirement-course', verifyToken, Reg
 
 registration.patch('/registration-course/note', verifyToken, RegistrationController.updateRegistrationCourse);
 registration.patch('/registration-course-note', verifyToken, RegistrationController.updateRegistrationCourseNote);
+registration.patch('/registration-course/:id/grade-payment-override', verifyToken, RegistrationController.updateGradePaymentOverride);
 
 
 registration.get('/registration/:id_student/student', verifyToken, RegistrationController.listRegistrationStundent);

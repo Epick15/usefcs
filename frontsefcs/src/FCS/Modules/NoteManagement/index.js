@@ -666,6 +666,38 @@ class NoteManagement extends Component {
         }
     }
 
+    changePaymentGradeAccess = async (record, enabled) => {
+        const action = enabled ? "habilitar" : "bloquear";
+        const result = await Swal.fire({
+            title: enabled ? "¿Habilitar registro de nota?" : "¿Bloquear registro de nota?",
+            text: enabled
+                ? "Solo se permitirá si la matrícula está pagada. Las pensiones pendientes se mantendrán registradas."
+                : "El estudiante volverá a requerir todos los pagos para registrar su nota.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: `Sí, ${action}`,
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: enabled ? "#198754" : "#b02a37",
+        });
+        if (!result.value) return;
+
+        this.setState({studentLoader: true});
+        const url = app.registration + "/" + app.registrationCourse + "/" + record.id_registration_course + "/grade-payment-override";
+        try {
+            const data = new FormData();
+            data.set("enabled", enabled);
+            const res = await axios.patch(url, data, app.headers);
+            PNotify.success({title: "Finalizado", text: res.data.message, delay: 2500});
+            await this.listRegistrationCourseStudentBySchedule(this.state.schedule);
+        } catch (err) {
+            const errorMessage = err.response && err.response.data && err.response.data.message
+                ? err.response.data.message
+                : "No se pudo actualizar la habilitación de notas";
+            PNotify.error({title: "No realizado", text: errorMessage, delay: 3000});
+            this.setState({studentLoader: false});
+        }
+    };
+
     render() {
         const { courseLoader, process, activate, admissionPlan, schedule } =
             this.state;
@@ -1307,6 +1339,9 @@ class NoteManagement extends Component {
                                         activate={activate}
                                         acta={this.state.acta}
                                         actaState={this.state.actaState}
+                                        showPaymentOptions={true}
+                                        canManagePaymentAccess={activate && (!this.state.acta || !this.state.actaState)}
+                                        onPaymentAccessChange={this.changePaymentGradeAccess}
                                         records={eligibleStudents}
                                         title="ESTUDIANTES HABILITADOS PARA REGISTRAR NOTAS"
                                     />
@@ -1320,6 +1355,9 @@ class NoteManagement extends Component {
                                             activate={false}
                                             acta={this.state.acta}
                                             actaState={this.state.actaState}
+                                            showPaymentOptions={true}
+                                            canManagePaymentAccess={activate && (!this.state.acta || !this.state.actaState)}
+                                            onPaymentAccessChange={this.changePaymentGradeAccess}
                                             records={blockedStudents}
                                             title="ESTUDIANTES BLOQUEADOS POR PAGOS PENDIENTES"
                                         />

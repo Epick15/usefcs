@@ -76,7 +76,7 @@ const requirePaidInscription = async ({ idStudent, idProgram }, transaction) => 
     }
 };
 
-const requirePaidRegistrationPayments = async (idRegistration, transaction) => {
+const requirePaidRegistrationPayments = async (idRegistration, transaction, allowPendingPensions = false) => {
     const validPaymentTypes = ["Pagado", "Exonerado"];
     const payments = await Payment.findAll({
         where: {
@@ -93,7 +93,7 @@ const requirePaidRegistrationPayments = async (idRegistration, transaction) => {
         !validPaymentTypes.includes(payment.type)
     );
 
-    if (!paidRegistration || pendingPayments.length > 0) {
+    if (!paidRegistration || (pendingPayments.length > 0 && !allowPendingPensions)) {
         throw {
             message:
                 'No se pueden registrar notas: la matrícula y todas las pensiones del ciclo deben estar pagadas',
@@ -1945,7 +1945,7 @@ module.exports = {
                         {transaction: t}
                     );
                     if (!course) throw {message: 'No se encontró el curso matriculado'};
-                    await requirePaidRegistrationPayments(course.id_registration, t);
+                    await requirePaidRegistrationPayments(course.id_registration, t, course.grade_payment_override);
                     let state =
                         dataCourse[i].note >= 14 ? "Aprobado" : "Desaprobado";
                     registrationCourseCreate = await course.update(
@@ -1973,7 +1973,7 @@ module.exports = {
             await ST.transaction(async (t) => {
                 let data = await Registration_course.findByPk(req.body.id, {transaction: t});
                 if (!data) throw {message: 'No se encontró el curso matriculado'};
-                await requirePaidRegistrationPayments(data.id_registration, t);
+                await requirePaidRegistrationPayments(data.id_registration, t, data.grade_payment_override);
                 let state = req.body.note >= 14 ? "Aprobado" : "Desaprobado";
                 await data.update(
                     {
@@ -1990,6 +1990,29 @@ module.exports = {
                 message: message.ERROR_TRANSACTION,
                 error: err,
             });
+        }
+    },
+    updateGradePaymentOverride: async (req, res) => {
+        try {
+            const enabled = req.body.enabled === true || req.body.enabled === 'true';
+            let course;
+            await ST.transaction(async (t) => {
+                course = await Registration_course.findByPk(req.params.id, {transaction: t});
+                if (!course) throw {message: 'No se encontro el curso matriculado'};
+
+                // La excepcion solo cubre pensiones: la matricula debe estar pagada.
+                if (enabled) {
+                    await requirePaidRegistrationPayments(course.id_registration, t, true);
+                }
+                await course.update({grade_payment_override: enabled}, {transaction: t});
+            });
+            res.status(200).send({
+                message: enabled ? 'Estudiante habilitado para registrar nota' : 'Habilitacion excepcional retirada',
+                grade_payment_override: enabled,
+            });
+        } catch (err) {
+            console.log(err);
+            res.status(445).send({message: err.message || message.ERROR_TRANSACTION, error: err});
         }
     },
     //OLD FUNCTIONS REGISTRATION

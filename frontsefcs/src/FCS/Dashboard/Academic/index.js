@@ -411,13 +411,13 @@ export default class AcademicDashboard extends Component {
         return (
             <Aux>
 
-                <Row>
+                <Row className="dashboard-statistics">
                     <Col xl={4} md={12}>
-                        <Card className="bg-facebook order-card">
+                        <Card className="order-card dashboard-stat-card dashboard-stat-card--students">
                             <Card.Body>
-                                <h6 className="text-white">TOTAL DE ESTUDIANTES</h6>
-                                <h2 className="text-white">{this.state.totalStudent}</h2>
-                                <p className="m-b-0">Total </p>
+                                <h6>Total de estudiantes</h6>
+                                <h2>{this.state.totalStudent}</h2>
+                                <p className="m-b-0">Estudiantes registrados</p>
                                 {/*<i className="card-icon feather icon-users"/>*/}
                                 <i className="card-icon fas fa-user-graduate f-36 "/>
 
@@ -425,21 +425,21 @@ export default class AcademicDashboard extends Component {
                         </Card>
                     </Col>
                     <Col xl={4} md={12}>
-                        <Card className="bg-linkedin order-card">
+                        <Card className="order-card dashboard-stat-card dashboard-stat-card--dropout">
                             <Card.Body>
-                                <h6 className="text-white">TOTAL DE DESERTADOS</h6>
-                                <h2 className="text-white">{this.state.totalStudentDesertionTotal}</h2>
-                                <p className="m-b-0">Total</p>
+                                <h6>Total de desertados</h6>
+                                <h2>{this.state.totalStudentDesertionTotal}</h2>
+                                <p className="m-b-0">Histórico institucional</p>
                                 <i className="card-icon fas fa-user f-36 "/>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col xl={4} md={12}>
-                        <Card className="bg-twitter order-card">
+                        <Card className="order-card dashboard-stat-card dashboard-stat-card--graduates">
                             <Card.Body>
-                                <h6 className="text-white">TOTAL DE EGRESADOS</h6>
-                                <h2 className="text-white">{this.state.totalStudentEgressTotal}</h2>
-                                <p className="m-b-0">Total </p>
+                                <h6>Total de egresados</h6>
+                                <h2>{this.state.totalStudentEgressTotal}</h2>
+                                <p className="m-b-0">Histórico institucional</p>
                                 <i className="card-icon fas fa-user-tie f-36 "/>
 
                             </Card.Body>
@@ -447,9 +447,9 @@ export default class AcademicDashboard extends Component {
                     </Col>
                 </Row>
 
-                <Row>
+                <Row className="dashboard-charts">
                     <Col xl={6}>
-                        <Card>
+                        <Card className="dashboard-chart-card">
                             <Card.Body>
                                 <Row>
                                     <Col xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -506,7 +506,7 @@ export default class AcademicDashboard extends Component {
 
                     </Col>
                     <Col xl={6}>
-                        <Card>
+                        <Card className="dashboard-chart-card">
                             <Card.Body>
                                 <Row>
                                     <Col xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -559,7 +559,7 @@ export default class AcademicDashboard extends Component {
                         </Card>
                     </Col>
                     <Col xl={6}>
-                        <Card>
+                        <Card className="dashboard-chart-card">
                             <Card.Body>
                                 <Row>
                                     <Col xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -612,7 +612,7 @@ export default class AcademicDashboard extends Component {
                         </Card>
                     </Col>
                     <Col xl={6}>
-                        <Card>
+                        <Card className="dashboard-chart-card">
                             <Card.Body>
                                 <Row>
                                     <Col xs={12} sm={12} md={6} lg={6} xl={6}>

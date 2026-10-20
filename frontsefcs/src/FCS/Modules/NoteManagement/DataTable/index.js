@@ -270,6 +270,54 @@ class Index extends Component {
                     display: this.props.blocked,
                     customBodyRender: (value) => value || "Sin pagos pendientes"
                 }
+            },
+            {
+                name: "OPCIONES",
+                options: {
+                    filter: false,
+                    sort: false,
+                    display: this.props.showPaymentOptions,
+                    customBodyRender: (record) => {
+                        const paymentStatus = record.payment_status || {};
+                        const isOverridden = paymentStatus.grade_payment_override === true;
+                        const canEnable = paymentStatus.has_paid_registration === true;
+                        const canManage = this.props.canManagePaymentAccess;
+
+                        if (isOverridden) {
+                            return (
+                                <OverlayTrigger overlay={<Tooltip>Retirar la habilitación excepcional</Tooltip>}>
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-danger"
+                                        disabled={!canManage}
+                                        onClick={() => this.props.onPaymentAccessChange(record, false)}
+                                    >
+                                        <i className="feather icon-lock mr-1"/> Bloquear
+                                    </button>
+                                </OverlayTrigger>
+                            );
+                        }
+
+                        if (!paymentStatus.can_enter_grade && canEnable) {
+                            return (
+                                <OverlayTrigger overlay={<Tooltip>Permitir registrar nota pese a pensiones pendientes</Tooltip>}>
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-outline-success"
+                                        disabled={!canManage}
+                                        onClick={() => this.props.onPaymentAccessChange(record, true)}
+                                    >
+                                        <i className="feather icon-unlock mr-1"/> Habilitar nota
+                                    </button>
+                                </OverlayTrigger>
+                            );
+                        }
+
+                        return paymentStatus.can_enter_grade
+                            ? <span className="text-success font-weight-bold">Habilitado</span>
+                            : <span className="text-danger font-weight-bold">Matrícula pendiente</span>;
+                    }
+                }
             }
 
 
@@ -290,6 +338,7 @@ class Index extends Component {
                             r.payment_status && r.payment_status.pending_concepts.length > 0
                                 ? [...new Set(r.payment_status.pending_concepts)].join(", ")
                                 : "Sin pagos pendientes",
+                            r,
                         ])
                     )
                 }
