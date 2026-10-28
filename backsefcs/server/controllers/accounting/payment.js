@@ -11,6 +11,7 @@ const Student = require('../../models').Student;
 const Academic_semester = require('../../models').Academic_semester;
 const Academic_calendar = require('../../models').Academic_calendar;
 const Movement = require('../../models').Movement;
+const PaymentDateChange = require('../../models').Payment_date_change;
 
 const k = new Buffer.alloc(32);
 const v = new Buffer.alloc(16);
@@ -206,6 +207,7 @@ module.exports = {
                     id_organic_unit: student.id_organic_unit,
                     id_semester: req.body.id_process,
                     id_concept: req.body.id_concept,
+                    operation_date: new Date().toISOString().slice(0, 10),
                     denomination: concept.denomination,
                     amount: req.body.amount,
                     type: 'Pendiente',
@@ -307,17 +309,88 @@ module.exports = {
             res.status(445).send(err);
         }
     },
-    destroyPayment: async (req, res) => {
+    togglePaymentAnnulment: async (req, res) => {
         try {
+            const reason = (req.body.reason || '').trim();
+            if (!reason) throw {message: 'El motivo es obligatorio'};
 
             await ST.transaction(async (t) => {
+                const payment = await Model.findByPk(req.params.id, {transaction: t});
+                if (!payment) throw {message: 'No se encontró la operación'};
 
+                if (payment.type === 'Anulado') {
+                    await payment.update({
+                        type: payment.annulled_previous_type || 'Pendiente',
+                        reactivation_reason: reason,
+                        reactivated_at: new Date(),
+                        reactivated_by: req.userId,
+                    }, {transaction: t});
+                    return;
+                }
 
-                let paymentTemp = await Model.findByPk(req.params.id)
-                await paymentTemp.destroy();
+                await payment.update({
+                    annulled_previous_type: payment.type,
+                    type: 'Anulado',
+                    cancellation_reason: reason,
+                    cancelled_at: new Date(),
+                    cancelled_by: req.userId,
+                    reactivation_reason: null,
+                    reactivated_at: null,
+                    reactivated_by: null,
+                }, {transaction: t});
             });
 
-            res.status(200).send({message: message.DELETED_OK})
+            res.status(200).send({message: message.UPDATED_OK});
+        } catch (err) {
+            console.log(err);
+            res.status(445).send({message: err.message || message.ERROR_TRANSACTION, error: err});
+        }
+    },
+    updateOperationDate: async (req, res) => {
+        try {
+            const operationDate = String(req.body.operation_date || '').trim();
+            const reason = String(req.body.reason || '').trim();
+            const parsedOperationDate = new Date(`${operationDate}T00:00:00Z`);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(operationDate) ||
+                Number.isNaN(parsedOperationDate.getTime()) ||
+                parsedOperationDate.toISOString().slice(0, 10) !== operationDate) {
+                throw {message: 'La fecha de operación no es válida'};
+            }
+            if (!reason) throw {message: 'El sustento del cambio de fecha es obligatorio'};
+
+            await ST.transaction(async (t) => {
+                const payment = await Model.findByPk(req.params.id, {transaction: t});
+                if (!payment) throw {message: 'No se encontró la operación'};
+                if (payment.type === 'Anulado') {
+                    throw {message: 'No se puede modificar la fecha de una operación anulada'};
+                }
+
+                const previousDate = payment.operation_date || payment.created_at.toISOString().slice(0, 10);
+                if (previousDate === operationDate) {
+                    throw {message: 'La nueva fecha debe ser diferente a la registrada'};
+                }
+
+                await payment.update({operation_date: operationDate}, {transaction: t});
+                await PaymentDateChange.create({
+                    id_payment: payment.id,
+                    previous_date: previousDate,
+                    new_date: operationDate,
+                    reason,
+                    changed_by: req.userId,
+                }, {transaction: t});
+            });
+
+            res.status(200).send({message: message.UPDATED_OK});
+        } catch (err) {
+            console.log(err);
+            res.status(445).send({message: err.message || message.ERROR_TRANSACTION, error: err});
+        }
+    },
+    destroyPayment: async (req, res) => {
+        try {
+            // Una operación forma parte del historial contable y puede sustentar
+            // documentos numerados. Nunca se borra: debe anularse con motivo.
+            res.status(409).send({message: 'La operación no puede eliminarse. Anúlela indicando el motivo.'});
         } catch (err) {
             console.log(err)
             res.status(445).send({message: message.ERROR_TRANSACTION, error: err})

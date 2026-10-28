@@ -18,15 +18,44 @@ const v = new Buffer.alloc(16);
 const ST = Model.sequelize;
 const URL_PLUBLIC = require("../Abox").URL_PLUBLIC;
 const url_person_voucher = URL_PLUBLIC + 'person/voucher/';
+
+const getVoucherYear = (voucherDate) => {
+    if (typeof voucherDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(voucherDate)) {
+        throw new Error('La fecha de la boleta debe tener el formato AAAA-MM-DD');
+    }
+
+    const parsedDate = new Date(`${voucherDate}T00:00:00.000Z`);
+    if (Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== voucherDate) {
+        throw new Error('La fecha de la boleta no es válida');
+    }
+
+    return Number(voucherDate.slice(0, 4));
+};
+
+const getVoucherCode = (voucherCode) => {
+    const code = typeof voucherCode === 'string' ? voucherCode.trim() : '';
+    if (!code) throw new Error('El número de boleta es obligatorio');
+    return code;
+};
+
+const voucherWhere = (voucherCode, voucherYear, excludeId) => ({
+    voucher_code: voucherCode,
+    voucher_year: voucherYear,
+    ...(excludeId ? {id: {[Op.ne]: excludeId}} : {})
+});
 module.exports = {
     createMovement: async (req, res) => {
         let archive = "";
         let tmp_path = "";
+        let voucherYear;
+        let voucherCode;
         try {
-            archive = req.body.id_student + '-' + req.body.voucher_code + '.' + req.files.file.name.split('.').pop();
+            voucherYear = getVoucherYear(req.body.voucher_date);
+            voucherCode = getVoucherCode(req.body.voucher_code);
+            archive = req.body.id_student + '-' + voucherYear + '-' + voucherCode + '.' + req.files.file.name.split('.').pop();
             tmp_path = req.files.file.path;
             let target_path = url_person_voucher + archive;
-            let movement = await Model.findOne({where: {voucher_code: req.body.voucher_code}});
+            let movement = await Model.findOne({where: voucherWhere(voucherCode, voucherYear)});
             if (movement) {
                 throw 'Error el comprobante ya ha sido registrado!!'
             } else {
@@ -36,15 +65,21 @@ module.exports = {
             // delete temp file
             await fs.unlink(tmp_path);
         } catch (e) {
-            await fs.unlink(tmp_path);
-            res.status(444).send(e)
+            if (tmp_path) {
+                try {
+                    await fs.unlink(tmp_path);
+                } catch (_) {
+                    // El archivo temporal ya pudo haberse eliminado.
+                }
+            }
+            return res.status(444).send(e.message || e)
         }
 
         try {
 
 
             await ST.transaction(async (t) => {
-                let movement = await Model.findOne({where: {voucher_code: req.body.voucher_code}});
+                let movement = await Model.findOne({where: voucherWhere(voucherCode, voucherYear), transaction: t});
                 if (movement) throw "Ya se ha registrado ese número de voucher";
 
                 let maxMovementID = await Model.max('id', {paranoid: false}, {transaction: t});
@@ -55,7 +90,8 @@ module.exports = {
                     id_organic_unit: req.body.id_organic_unit,
                     id_user: req.body.id_user,
                     denomination: req.body.denomination,
-                    voucher_code: req.body.voucher_code,
+                    voucher_code: voucherCode,
+                    voucher_year: voucherYear,
                     voucher_amount: req.body.voucher_amount,
                     voucher_date: req.body.voucher_date,
                     voucher_url: archive,
@@ -68,7 +104,7 @@ module.exports = {
         } catch (err) {
 
             console.log(err);
-            res.status(445).send(err)
+            res.status(445).send(err.message || err)
         }
 
     },
@@ -120,7 +156,7 @@ module.exports = {
     searchVoucherStudent: async (req, res) => {
         try {
             let record = await Model.findAll({
-                attributes: ['voucher_code', 'voucher_amount', 'voucher_date', 'voucher_url', 'observation', 'type', 'state', 'created_at', 'updated_at'],
+                attributes: ['voucher_code', 'voucher_year', 'voucher_amount', 'voucher_date', 'voucher_url', 'observation', 'type', 'state', 'created_at', 'updated_at'],
                 where: {voucher_code: {[Op.iLike]: '%' + req.params.parameter + '%'}},
                 include: [
                     {
@@ -154,32 +190,50 @@ module.exports = {
 
     updateMovement: async (req, res) => {
         let archive = "";
-        let tmp_path;
-        //existe un archivo
-        if (req.files.file) {
-            //pregunta busca el nombre del archivo
-            let movementTemp = await Model.findByPk(req.params.id)
+        let tmp_path = "";
+        let movementTemp;
+        let voucherYear;
+        let voucherCode;
+
+        try {
+            voucherYear = getVoucherYear(req.body.voucher_date);
+            voucherCode = getVoucherCode(req.body.voucher_code);
+            movementTemp = await Model.findByPk(req.params.id);
+            if (!movementTemp) throw new Error('No se encontró el comprobante');
+
+            const duplicate = await Model.findOne({
+                where: voucherWhere(voucherCode, voucherYear, movementTemp.id)
+            });
+            if (duplicate) throw new Error('Ya se ha registrado ese número de voucher para este año');
+        } catch (err) {
+            return res.status(444).send(err.message || err);
+        }
+
+        if (req.files && req.files.file) {
             const path = url_person_voucher + movementTemp.voucher_url;
-            //ELIMINA VOUCHGER ANTIGUO
             try {
-                await fs.unlink(path);
-                //    lo eliminamos
-            } catch (err) {
-                console.error(err);
-            }
-
-
-            //REGISTRA NUEVO VOUHCER
-            try {
-
-                archive = req.body.id_student + '-' + movementTemp.voucher_code + '.' + req.files.file.name.split('.').pop();
+                archive = req.body.id_student + '-' + voucherYear + '-' + voucherCode + '.' + req.files.file.name.split('.').pop();
                 tmp_path = req.files.file.path;
                 let target_path = url_person_voucher + archive;
                 await fs.copyFile(tmp_path, target_path);
                 await fs.unlink(tmp_path);
+
+                if (path !== target_path) {
+                    try {
+                        await fs.unlink(path);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
             } catch (e) {
-                await fs.unlink(tmp_path);
-                res.status(444).send(e)
+                if (tmp_path) {
+                    try {
+                        await fs.unlink(tmp_path);
+                    } catch (_) {
+                        // El archivo temporal ya pudo haberse eliminado.
+                    }
+                }
+                return res.status(444).send(e.message || e);
             }
         }
 
@@ -188,12 +242,13 @@ module.exports = {
             await ST.transaction(async (t) => {
 
 
-                let movementTemp = await Model.findByPk(req.params.id)
+                let movementTemp = await Model.findByPk(req.params.id, {transaction: t})
                 await movementTemp.update({
                     denomination: req.body.denomination,
                     voucher_amount: req.body.voucher_amount,
                     // MPT
-                    voucher_code: req.body.voucher_code,
+                    voucher_code: voucherCode,
+                    voucher_year: voucherYear,
                     // MPT END
                     voucher_date: req.body.voucher_date,
                     voucher_url: archive !== '' ? archive : movementTemp.voucher_url,

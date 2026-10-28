@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         id_user: {allowNull: true, type: DataTypes.UUID},
         denomination: {allowNull: true, type: DataTypes.STRING(255)},
         voucher_code: {allowNull: true, type: DataTypes.STRING(50)},
+        voucher_year: {allowNull: true, type: DataTypes.SMALLINT},
         voucher_amount: {allowNull: true, type: DataTypes.NUMERIC(20, 2)},
         voucher_date: {allowNull: true, type: DataTypes.STRING(50)},
         voucher_url: {allowNull: true, type: DataTypes.STRING(50)},

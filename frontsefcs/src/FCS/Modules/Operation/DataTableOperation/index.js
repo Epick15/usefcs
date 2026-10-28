@@ -8,6 +8,8 @@ import component from "../../../Component"
 import Edit from "@material-ui/icons/Edit";
 import Delete from "@material-ui/icons/Delete";
 import GetApp from "@material-ui/icons/GetApp";
+import Replay from "@material-ui/icons/Replay";
+import Event from "@material-ui/icons/Event";
 
 class DataTable extends Component {
 
@@ -108,7 +110,7 @@ class DataTable extends Component {
                             return "No def.";
                         } else {
 
-                            return value ? value : "No def."
+                            return value ? String(value).slice(0, 10) : "No def."
                         }
                     },
                 }
@@ -124,12 +126,20 @@ class DataTable extends Component {
                         if (value === undefined) {
                             return "No def.";
                         } else {
-                            let state = value === "Pagado" ? "badge-info" : "badge-warning"
+                            let state = value === "Pagado" ? "badge-info" : value === "Anulado" ? "badge-danger" : "badge-warning"
 
                             return value ?
                                 <span className={"badge  inline-block " + state}>{value}</span> : "No def."
                         }
                     },
+                }
+            },
+            {
+                name: "MOTIVO",
+                options: {
+                    filter: false,
+                    sort: false,
+                    customBodyRender: (value) => value || "-",
                 }
             },
             {
@@ -153,16 +163,22 @@ class DataTable extends Component {
                                     {
                                         !component.ORGANIC_UNIT &&
                                         <>
-                                            <OverlayTrigger
+                                            {value.type !== "Anulado" && <OverlayTrigger
                                                 overlay={<Tooltip>EDITAR</Tooltip>}>
                                                 <Edit style={{color: "#1d86e0"}}
                                                       onClick={() => this.props.retriveDataOperation(value)}/>
-
-                                            </OverlayTrigger>
+                                            </OverlayTrigger>}
+                                            {value.type !== "Anulado" && <OverlayTrigger
+                                                overlay={<Tooltip>CAMBIAR FECHA CON SUSTENTO</Tooltip>}>
+                                                <Event style={{color: "#7952b3"}}
+                                                       onClick={() => this.props.changeOperationDateSweet(value)}/>
+                                            </OverlayTrigger>}
                                             <OverlayTrigger
-                                                overlay={<Tooltip>ELIMINAR</Tooltip>}>
-                                                <Delete style={{color: "#ff5252"}}
-                                                        onClick={() => this.props.deleteOperationSweet(value.id)}/>
+                                                overlay={<Tooltip>{value.type === "Anulado" ? "DESANULAR" : "ANULAR"}</Tooltip>}>
+                                                {value.type === "Anulado"
+                                                    ? <Replay style={{color: "#1d86e0"}} onClick={() => this.props.deleteOperationSweet(value)}/>
+                                                    : <Delete style={{color: "#ff5252"}} onClick={() => this.props.deleteOperationSweet(value)}/>
+                                                }
                                             </OverlayTrigger>
                                         </>
 
@@ -192,8 +208,9 @@ class DataTable extends Component {
                             r.concept,
                             r.amount,
                             r.process,
-                            r.created_at,
+                            r.operation_date || r.created_at,
                             r.type,
+                            r.type === "Anulado" ? r.cancellation_reason : r.reactivation_reason,
                             r
 
                         ])

@@ -916,6 +916,11 @@ class Index extends Component {
                         if (value === undefined) {
                             return "No def.";
                         } else {
+                            if (value.is_blocked) {
+                                return <OverlayTrigger overlay={<Tooltip>{value.blocked_reason}</Tooltip>}>
+                                    <span className="badge badge-danger">BLOQUEADO</span>
+                                </OverlayTrigger>;
+                            }
                             return (
                                 <>
                                     <OverlayTrigger
@@ -1269,6 +1274,11 @@ class Index extends Component {
                         if (value === undefined) {
                             return "No def.";
                         } else {
+                            if (value.is_blocked) {
+                                return <OverlayTrigger overlay={<Tooltip>{value.blocked_reason}</Tooltip>}>
+                                    <span className="text-danger">Operación anulada</span>
+                                </OverlayTrigger>;
+                            }
                             return (
                                 <>
                                     {value.state_upload ? (
@@ -1384,6 +1394,18 @@ class Index extends Component {
                     },
                 },
             },
+            {
+                name: "ESTADO DOCUMENTAL",
+                options: {
+                    filter: true,
+                    sort: true,
+                    customBodyRender: (value) => value ? (
+                        <OverlayTrigger overlay={<Tooltip>{value.reason}</Tooltip>}>
+                            <span className="badge badge-danger">BLOQUEADO</span>
+                        </OverlayTrigger>
+                    ) : <span className="badge badge-success">ACTIVO</span>,
+                },
+            },
         ];
 
         let data = [];
@@ -1400,6 +1422,7 @@ class Index extends Component {
                         "CORREGIR",
                     r.Program.description,
                     moment(r.created_at).format("YYYY-MM-DD h:mm:ss"),
+                    r.is_blocked ? {reason: r.blocked_reason} : null,
                 ]);
             });
         }

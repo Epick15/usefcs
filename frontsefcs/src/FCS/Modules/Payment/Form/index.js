@@ -466,6 +466,9 @@ class FormVoucher extends React.Component {
             previewVoucher,
             vouchers,
         } = this.state;
+        const voucherYear = /^\d{4}-\d{2}-\d{2}$/.test(voucherDate)
+            ? voucherDate.slice(0, 4)
+            : "";
 
         return (
             <>
@@ -744,6 +747,20 @@ class FormVoucher extends React.Component {
                                                 onChange={this.handleChange(
                                                     "voucherAmount"
                                                 )}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                                        <Form.Group className="form-group fill">
+                                            <Form.Label className="floating-label">
+                                                Año de boleta
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={voucherYear}
+                                                placeholder="Se obtiene de la fecha"
+                                                readOnly
+                                                aria-label="Año de boleta"
                                             />
                                         </Form.Group>
                                     </Col>

@@ -26,6 +26,7 @@ class FormOperation extends React.Component {
         formOperation: this.props.formOperation,
         studentID: this.props.studentID,
         deleteOperationID: this.props.deleteOperationID,
+        dateOperationID: this.props.dateOperationID,
         retriveOperation: this.props.retriveOperation,
         leaveRegistrationID: this.props.leaveRegistrationID,
 
@@ -81,6 +82,10 @@ class FormOperation extends React.Component {
         if (prevProps.deleteOperationID !== this.props.deleteOperationID) {
             this.props.deleteOperationID !== "" &&
                 this.openOperationSweetAlert(this.props.deleteOperationID);
+        }
+        if (prevProps.dateOperationID !== this.props.dateOperationID) {
+            this.props.dateOperationID !== "" &&
+                this.openOperationDateSweetAlert(this.props.dateOperationID);
         }
         if (prevProps.leaveRegistrationID !== this.props.leaveRegistrationID) {
             this.props.leaveRegistrationID !== "" &&
@@ -289,11 +294,13 @@ class FormOperation extends React.Component {
         }
     }
 
-    async destroyPayment(id) {
+    async togglePaymentAnnulment(payment, reason) {
         try {
             this.setState({ loaderEntry: true });
-            const url = app.accounting + "/" + app.payment + "/" + id;
-            const res = await axios.delete(url, app.headers);
+            const url = app.accounting + "/" + app.payment + "/" + payment.id + "/annulment";
+            const data = new FormData();
+            data.set("reason", reason);
+            const res = await axios.patch(url, data, app.headers);
             PNotify.success({
                 title: "Finalizado",
                 text: res.data.message,
@@ -351,22 +358,71 @@ class FormOperation extends React.Component {
         });
     };
 
-    openOperationSweetAlert = async (id) => {
+    openOperationSweetAlert = async (payment) => {
         try {
+            const isAnnulled = payment.type === "Anulado";
             const alert = await Swal.fire({
-                title: "Estás seguro?",
-                text: "Este paso es irreversible!",
+                title: isAnnulled ? "¿Desanular operación?" : "¿Anular operación?",
+                text: isAnnulled ? "Indique el motivo de la reactivación." : "La operación y los documentos vinculados quedarán bloqueados.",
                 icon: "warning",
+                input: "textarea",
+                inputLabel: "Motivo obligatorio",
+                inputPlaceholder: "Describa el motivo de la anulación o desanulación...",
+                inputValidator: (value) => !value || !value.trim() ? "El motivo es obligatorio" : undefined,
                 showCancelButton: true,
-                confirmButtonText: "Si, Eliminar!",
+                confirmButtonText: isAnnulled ? "Sí, desanular" : "Sí, anular",
                 cancelButtonText: "No, Cancelar",
             });
             alert.isConfirmed
-                ? await this.destroyPayment(id)
+                ? await this.togglePaymentAnnulment(payment, alert.value.trim())
                 : this.props.closeFormOperation();
         } catch (e) {
             console.log("error:", e);
             return false;
+        }
+    };
+
+    openOperationDateSweetAlert = async (payment) => {
+        try {
+            const initialDate = String(payment.operation_date || payment.created_at || "").slice(0, 10);
+            const alert = await Swal.fire({
+                title: "Cambiar fecha de operación",
+                html: '<label class="d-block text-left">Nueva fecha</label>' +
+                    '<input id="operation-date" type="date" class="swal2-input" value="' + initialDate + '">' +
+                    '<label class="d-block text-left">Sustento obligatorio</label>' +
+                    '<textarea id="operation-date-reason" class="swal2-textarea" placeholder="Describa el sustento del cambio..."></textarea>',
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Guardar cambio",
+                cancelButtonText: "Cancelar",
+                preConfirm: () => {
+                    const operationDate = document.getElementById("operation-date").value;
+                    const reason = document.getElementById("operation-date-reason").value.trim();
+                    if (!operationDate || !reason) {
+                        Swal.showValidationMessage("La fecha y el sustento son obligatorios");
+                        return false;
+                    }
+                    return {operationDate, reason};
+                },
+            });
+            if (!alert.isConfirmed) {
+                this.props.closeFormOperation();
+                return;
+            }
+
+            this.setState({loaderEntry: true});
+            const url = app.accounting + "/" + app.payment + "/" + payment.id + "/operation-date";
+            const data = new FormData();
+            data.set("operation_date", alert.value.operationDate);
+            data.set("reason", alert.value.reason);
+            const res = await axios.patch(url, data, app.headers);
+            this.setState({loaderEntry: false});
+            this.props.callData();
+            this.props.closeFormOperation();
+            PNotify.success({title: "Finalizado", text: res.data.message, delay: 2000});
+        } catch (err) {
+            this.setState({loaderEntry: false});
+            PNotify.error({title: "Oh no!", text: err.response && err.response.data.message, delay: 2000});
         }
     };
 

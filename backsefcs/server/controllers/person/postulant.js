@@ -307,6 +307,10 @@ module.exports = {
                 html: out
             };
             await ST.transaction(async (t) => {
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(postulant.voucher_date || '')) {
+                    throw new Error('La fecha de la boleta del postulante no es válida');
+                }
+                const voucherYear = Number(postulant.voucher_date.slice(0, 4));
                 await postulant.update({voucher_state: "Aceptado"}, {transaction: t});
                 let personMax = await Person.max('id', {paranoid: false}, {transaction: t});
                 let personData = await Person.create({
@@ -365,6 +369,7 @@ module.exports = {
                     id_concept: postulant.id_admission_plan,
                     denomination: concept.denomination,
                     voucher_code: postulant.voucher_code,
+                    voucher_year: voucherYear,
                     voucher_amount: postulant.voucher_amount,
                     voucher_date: postulant.voucher_date,
                     voucher_url: postulant.voucher_url,

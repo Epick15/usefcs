@@ -103,7 +103,10 @@ module.exports = {
                             model: Concept, as: "Concept",
                         },
                         {
-                            attributes: ['academic_record_emission_date', 'academic_record_emission_reason'],
+                            // Se incluye incluso un pago eliminado lógicamente para
+                            // identificar documentos históricos que deben bloquearse.
+                            paranoid: false,
+                            attributes: ['type', 'deleted_at', 'cancellation_reason', 'academic_record_emission_date', 'academic_record_emission_reason'],
                             model: Payment, as: "Payment",
                         },
                         {
@@ -126,7 +129,20 @@ module.exports = {
 
                 }, {transaction: t})
 
-                records = data
+                records = data.map((record) => {
+                    const document = record.toJSON();
+                    const payment = document.Payment;
+                    const deletedPayment = !payment || payment.deleted_at;
+                    const annulledPayment = payment && payment.type === 'Anulado';
+
+                    document.is_blocked = Boolean(deletedPayment || annulledPayment);
+                    document.blocked_reason = deletedPayment
+                        ? 'La operación asociada fue eliminada antes de aplicar el control de anulación.'
+                        : annulledPayment
+                            ? payment.cancellation_reason || 'La operación asociada fue anulada.'
+                            : null;
+                    return document;
+                });
             });
 
             // In this case, an instance of Model

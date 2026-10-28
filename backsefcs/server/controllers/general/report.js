@@ -2183,6 +2183,9 @@ module.exports = {
                         as: "Academic_calendar",
                     },
                 },
+                // La constancia usa el primer y último registro. Sin un orden
+                // explícito PostgreSQL no garantiza cuál fila será la última.
+                order: [["created_at", "ASC"], ["id", "ASC"]],
             });
             firtsRegister =
                 studentRegister[0] &&

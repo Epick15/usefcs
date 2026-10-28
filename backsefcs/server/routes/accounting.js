@@ -19,6 +19,8 @@ accounting.get('/payment/student/:id_student/academic-record-emission', verifyTo
 accounting.post('/payment', verifyToken, PaymentController.createPayment);
 accounting.patch('/payment-update/:id_payment', verifyToken, PaymentController.updatePayment);
 accounting.patch('/payment/:id_payment/academic-record-emission', verifyToken, PaymentController.updateAcademicRecordEmissionDate);
+accounting.patch('/payment/:id/annulment', verifyToken, PaymentController.togglePaymentAnnulment);
+accounting.patch('/payment/:id/operation-date', verifyToken, PaymentController.updateOperationDate);
 
 accounting.patch('/payment/state', verifyToken, PaymentController.updateStatePayment);
 accounting.patch('/payment/total-balance', verifyToken, PaymentController.listTotalBalance);

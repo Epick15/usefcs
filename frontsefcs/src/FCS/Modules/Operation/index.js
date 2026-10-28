@@ -22,6 +22,7 @@ class Operation extends Component {
         form: false,
         studentLoader: false,
         deleteMovementID: "",
+        dateOperationID: "",
         organicUnit: "",
         academicDegree: "",
         retriveData: "",
@@ -121,7 +122,10 @@ class Operation extends Component {
                         "amount": r.amount,
                         "process": r.Academic_semester.Academic_calendar.denomination.substr(-4) + ' - ' + r.Academic_semester.denomination.substr(-2),
                         "type": r.type,
+                        "cancellation_reason": r.cancellation_reason,
+                        "reactivation_reason": r.reactivation_reason,
                         "created_at": r.created_at,
+                        "operation_date": r.operation_date,
                         "state": r.state
                     })
                 })
@@ -156,8 +160,11 @@ class Operation extends Component {
     openForm = () => {
         this.setState({formOperation: true, action: "add"});
     };
-    deleteOperationSweet = (id) => {
-        this.setState({deleteOperationID: id})
+    deleteOperationSweet = (payment) => {
+        this.setState({deleteOperationID: payment})
+    };
+    changeOperationDateSweet = (payment) => {
+        this.setState({dateOperationID: payment})
     };
     leaveDataRegistration = (id) => {
         this.setState({leaveRegistrationID: id})
@@ -171,7 +178,7 @@ class Operation extends Component {
     };
     closeFormOperation = () => {
         this.setState({
-            formOperation: false, retriveOperation: "", deleteOperationID: "", action: ""
+            formOperation: false, retriveOperation: "", deleteOperationID: "", dateOperationID: "", action: ""
         })
     };
 
@@ -391,6 +398,7 @@ class Operation extends Component {
                                     retriveDataOperation={this.retriveDataOperation}
                                     leaveDataRegistration={this.leaveDataRegistration}
                                     deleteOperationSweet={this.deleteOperationSweet}
+                                    changeOperationDateSweet={this.changeOperationDateSweet}
                                 />
                             </div>
                         </Card.Body>
@@ -406,6 +414,7 @@ class Operation extends Component {
                                                     studentID={this.state.studentID}
                                                     retriveOperation={this.state.retriveOperation}
                                                     deleteOperationID={this.state.deleteOperationID}
+                                                    dateOperationID={this.state.dateOperationID}
 
             />}
             </div>
